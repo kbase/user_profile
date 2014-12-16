@@ -1,0 +1,11 @@
+USER PROFILE SERVICE
+-----------------------------------------
+A lightweight service to store public KBase user profiles and related basic information.
+
+VERSION: 0.1.0 (Released TBD)
+--------------------------------------
+NEW FEATURES:
+- This is the first release of the User Profile service.  All features are new.
+
+UPDATED FEATURES / MAJOR BUG FIXES:
+- N/A
