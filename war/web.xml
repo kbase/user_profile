@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app>
+    <servlet>
+        <servlet-name>RootServlet</servlet-name>
+        <servlet-class>us.kbase.userprofile.UserProfileServer</servlet-class>
+    </servlet>
+    <!-- servlet>
+        <servlet-name>ImageServlet</servlet-name>
+        <servlet-class>us.kbase.userprofile.ImageServlet</servlet-class>
+    </servlet -->
+    <servlet-mapping>
+        <servlet-name>RootServlet</servlet-name>
+        <url-pattern>/rpc</url-pattern>
+    </servlet-mapping>
+    <!--servlet-mapping>
+        <servlet-name>ImageServlet</servlet-name>
+        <url-pattern>/img</url-pattern>
+    </servlet-mapping -->
+</web-app>
