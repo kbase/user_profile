@@ -232,17 +232,17 @@ public class UserProfileClient {
      * Set the UserProfile for the user indicated in the User field of the UserProfile
      * object.  This operation can only be performed if authenticated as the user in
      * the UserProfile or as the admin account of this service.
-     * In the parameters, if replace is set to 1, then the entire profile will be
-     * replaced by the new profile.  If replace is set to 0, then only the fields specified
-     * in the new UserProfile will be updated.
+     * If the profile does not exist, one will be created.  If it does already exist,
+     * then the specified top-level fields in profile will be updated.
+     * todo: add some way to remove fields.  Fields in profile can only be modified or added.
      * </pre>
-     * @param   arg1   instance of type {@link us.kbase.userprofile.SetUserProfileParams SetUserProfileParams}
+     * @param   p   instance of type {@link us.kbase.userprofile.SetUserProfileParams SetUserProfileParams}
      * @throws IOException if an IO exception occurs
      * @throws JsonClientException if a JSON RPC exception occurs
      */
-    public void setUserProfile(SetUserProfileParams arg1) throws IOException, JsonClientException {
+    public void setUserProfile(SetUserProfileParams p) throws IOException, JsonClientException {
         List<Object> args = new ArrayList<Object>();
-        args.add(arg1);
+        args.add(p);
         TypeReference<Object> retType = new TypeReference<Object>() {};
         caller.jsonrpcCall("UserProfile.set_user_profile", args, retType, false, true);
     }

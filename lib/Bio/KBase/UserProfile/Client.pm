@@ -375,7 +375,7 @@ sub get_user_profile
 
 =head2 set_user_profile
 
-  $obj->set_user_profile($SetUserProfileParams)
+  $obj->set_user_profile($p)
 
 =over 4
 
@@ -384,10 +384,9 @@ sub get_user_profile
 =begin html
 
 <pre>
-$SetUserProfileParams is a UserProfile.SetUserProfileParams
+$p is a UserProfile.SetUserProfileParams
 SetUserProfileParams is a reference to a hash where the following keys are defined:
 	profile has a value which is a UserProfile.UserProfile
-	replace has a value which is a UserProfile.bool
 UserProfile is a reference to a hash where the following keys are defined:
 	user has a value which is a UserProfile.User
 	profile has a value which is an UnspecifiedObject, which can hold any non-null object
@@ -397,7 +396,6 @@ User is a reference to a hash where the following keys are defined:
 	thumbnail has a value which is a string
 username is a string
 realname is a string
-bool is an int
 
 </pre>
 
@@ -405,10 +403,9 @@ bool is an int
 
 =begin text
 
-$SetUserProfileParams is a UserProfile.SetUserProfileParams
+$p is a UserProfile.SetUserProfileParams
 SetUserProfileParams is a reference to a hash where the following keys are defined:
 	profile has a value which is a UserProfile.UserProfile
-	replace has a value which is a UserProfile.bool
 UserProfile is a reference to a hash where the following keys are defined:
 	user has a value which is a UserProfile.User
 	profile has a value which is an UnspecifiedObject, which can hold any non-null object
@@ -418,7 +415,6 @@ User is a reference to a hash where the following keys are defined:
 	thumbnail has a value which is a string
 username is a string
 realname is a string
-bool is an int
 
 
 =end text
@@ -429,9 +425,10 @@ Set the UserProfile for the user indicated in the User field of the UserProfile
 object.  This operation can only be performed if authenticated as the user in
 the UserProfile or as the admin account of this service.
 
-In the parameters, if replace is set to 1, then the entire profile will be
-replaced by the new profile.  If replace is set to 0, then only the fields specified
-in the new UserProfile will be updated.
+If the profile does not exist, one will be created.  If it does already exist,
+then the specified top-level fields in profile will be updated.
+
+todo: add some way to remove fields.  Fields in profile can only be modified or added.
 
 =back
 
@@ -449,10 +446,10 @@ sub set_user_profile
 							       "Invalid argument count for function set_user_profile (received $n, expecting 1)");
     }
     {
-	my($SetUserProfileParams) = @args;
+	my($p) = @args;
 
 	my @_bad_arguments;
-        (ref($SetUserProfileParams) eq 'HASH') or push(@_bad_arguments, "Invalid type for argument 1 \"SetUserProfileParams\" (value was \"$SetUserProfileParams\")");
+        (ref($p) eq 'HASH') or push(@_bad_arguments, "Invalid type for argument 1 \"p\" (value was \"$p\")");
         if (@_bad_arguments) {
 	    my $msg = "Invalid arguments passed to set_user_profile:\n" . join("", map { "\t$_\n" } @_bad_arguments);
 	    Bio::KBase::Exceptions::ArgumentValidationError->throw(error => $msg,
@@ -733,7 +730,6 @@ filter has a value which is a string
 <pre>
 a reference to a hash where the following keys are defined:
 profile has a value which is a UserProfile.UserProfile
-replace has a value which is a UserProfile.bool
 
 </pre>
 
@@ -743,7 +739,6 @@ replace has a value which is a UserProfile.bool
 
 a reference to a hash where the following keys are defined:
 profile has a value which is a UserProfile.UserProfile
-replace has a value which is a UserProfile.bool
 
 
 =end text

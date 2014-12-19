@@ -180,6 +180,6 @@ class UserProfile(object):
                           [usernames])
         return resp[0]
 
-    def set_user_profile(self, SetUserProfileParams):
+    def set_user_profile(self, p):
         self._call('UserProfile.set_user_profile',
-                   [SetUserProfileParams])
+                   [p])

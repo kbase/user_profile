@@ -19,8 +19,7 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Generated("com.googlecode.jsonschema2pojo")
 @JsonPropertyOrder({
-    "profile",
-    "replace"
+    "profile"
 })
 public class SetUserProfileParams {
 
@@ -31,8 +30,6 @@ public class SetUserProfileParams {
      */
     @JsonProperty("profile")
     private UserProfile profile;
-    @JsonProperty("replace")
-    private Long replace;
     private Map<String, Object> additionalProperties = new HashMap<String, Object>();
 
     /**
@@ -60,21 +57,6 @@ public class SetUserProfileParams {
         return this;
     }
 
-    @JsonProperty("replace")
-    public Long getReplace() {
-        return replace;
-    }
-
-    @JsonProperty("replace")
-    public void setReplace(Long replace) {
-        this.replace = replace;
-    }
-
-    public SetUserProfileParams withReplace(Long replace) {
-        this.replace = replace;
-        return this;
-    }
-
     @JsonAnyGetter
     public Map<String, Object> getAdditionalProperties() {
         return this.additionalProperties;
@@ -87,7 +69,7 @@ public class SetUserProfileParams {
 
     @Override
     public String toString() {
-        return ((((((("SetUserProfileParams"+" [profile=")+ profile)+", replace=")+ replace)+", additionalProperties=")+ additionalProperties)+"]");
+        return ((((("SetUserProfileParams"+" [profile=")+ profile)+", additionalProperties=")+ additionalProperties)+"]");
     }
 
 }

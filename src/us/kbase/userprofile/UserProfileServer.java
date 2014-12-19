@@ -7,6 +7,10 @@ import us.kbase.common.service.JsonServerServlet;
 
 //BEGIN_HEADER
 import java.util.ArrayList;
+import java.util.Map;
+
+import org.ini4j.Ini;
+import java.io.File;
 //END_HEADER
 
 /**
@@ -19,11 +23,69 @@ public class UserProfileServer extends JsonServerServlet {
 
     //BEGIN_CLASS_HEADER
     public static final String VERSION = "0.1.0";
+    
+    public static final String SYS_PROP_KB_DEPLOYMENT_CONFIG = "KB_DEPLOYMENT_CONFIG";
+    public static final String SERVICE_DEPLOYMENT_NAME = "UserProfile";
+    
+    public static final String   CFG_MONGO_HOST = "mongodb-host";
+    public static final String     CFG_MONGO_DB = "mongodb-database";
+    public static final String   CFG_MONGO_USER = "mongodb-user";
+    public static final String   CFG_MONGO_PSWD = "mongodb-pwd";
+    public static final String  CFG_MONGO_RETRY = "mongodb-retry";
+    public static final String        CFG_ADMIN = "admin";
+    
+    private static Throwable configError = null;
+    private static Map<String, String> config = null;
+
+	public static Map<String, String> config() {
+		if (config != null)
+			return config;
+		if (configError != null)
+			throw new IllegalStateException("There was an error while loading configuration", configError);
+		String configPath = System.getProperty(SYS_PROP_KB_DEPLOYMENT_CONFIG);
+		if (configPath == null)
+			configPath = System.getenv(SYS_PROP_KB_DEPLOYMENT_CONFIG);
+		if (configPath == null) {
+			configError = new IllegalStateException("Configuration file was not defined");
+		} else {
+			System.out.println(UserProfileServer.class.getName() + ": Deployment config path was defined: " + configPath);
+			try {
+				config = new Ini(new File(configPath)).get(SERVICE_DEPLOYMENT_NAME);
+			} catch (Throwable ex) {
+				System.out.println(UserProfileServer.class.getName() + ": Error loading deployment config-file: " + ex.getMessage());
+				configError = ex;
+			}
+		}
+		if (config == null)
+			throw new IllegalStateException("There was unknown error in service initialization when checking"
+					+ "the configuration: is the ["+SERVICE_DEPLOYMENT_NAME+"] config group defined?");
+		return config;
+	}
+	private String getConfig(String configName) {
+    	String ret = config().get(configName);
+    	if (ret == null)
+    		throw new IllegalStateException("Parameter " + configName + " is not defined in configuration");
+    	return ret;
+    }
+
+	private final MongoController db;
+	
     //END_CLASS_HEADER
 
     public UserProfileServer() throws Exception {
         super("UserProfile");
         //BEGIN_CONSTRUCTOR
+        
+        System.out.println(UserProfileServer.class.getName() + ": " + CFG_MONGO_HOST +" = " + getConfig(CFG_MONGO_HOST));
+        System.out.println(UserProfileServer.class.getName() + ": " + CFG_MONGO_DB +" = " + getConfig(CFG_MONGO_DB));
+        System.out.println(UserProfileServer.class.getName() + ": " + CFG_MONGO_RETRY +" = " + getConfig(CFG_MONGO_RETRY));
+        System.out.println(UserProfileServer.class.getName() + ": " + CFG_ADMIN +" = " + getConfig(CFG_ADMIN));
+        
+        db = new MongoController(
+        		getConfig(CFG_MONGO_HOST),
+        		getConfig(CFG_MONGO_DB),
+        		Integer.parseInt(getConfig(CFG_MONGO_RETRY)));
+        
         //END_CONSTRUCTOR
     }
 
@@ -56,7 +118,7 @@ public class UserProfileServer extends JsonServerServlet {
     public List<User> filterUsers(FilterParams p) throws Exception {
         List<User> returnVal = null;
         //BEGIN filter_users
-        returnVal = new ArrayList<User>();
+        returnVal = db.filterUsers(p.getFilter());
         //END filter_users
         return returnVal;
     }
@@ -77,7 +139,8 @@ public class UserProfileServer extends JsonServerServlet {
         //BEGIN get_user_profile
         returnVal = new ArrayList<UserProfile>();
         for(int k=0; k<usernames.size(); k++) {
-            returnVal.add(null);
+        	// todo: make this one single batch query
+            returnVal.add(db.getProfile(usernames.get(k)));
         }
         //END get_user_profile
         return returnVal;
@@ -89,15 +152,35 @@ public class UserProfileServer extends JsonServerServlet {
      * Set the UserProfile for the user indicated in the User field of the UserProfile
      * object.  This operation can only be performed if authenticated as the user in
      * the UserProfile or as the admin account of this service.
-     * In the parameters, if replace is set to 1, then the entire profile will be
-     * replaced by the new profile.  If replace is set to 0, then only the fields specified
-     * in the new UserProfile will be updated.
+     * If the profile does not exist, one will be created.  If it does already exist,
+     * then the specified top-level fields in profile will be updated.
+     * todo: add some way to remove fields.  Fields in profile can only be modified or added.
      * </pre>
-     * @param   arg1   instance of type {@link us.kbase.userprofile.SetUserProfileParams SetUserProfileParams}
+     * @param   p   instance of type {@link us.kbase.userprofile.SetUserProfileParams SetUserProfileParams}
      */
     @JsonServerMethod(rpc = "UserProfile.set_user_profile")
-    public void setUserProfile(SetUserProfileParams arg1, AuthToken authPart) throws Exception {
+    public void setUserProfile(SetUserProfileParams p, AuthToken authPart) throws Exception {
         //BEGIN set_user_profile
+    	if(p.getProfile()==null)
+    		throw new Exception("'profile' field must be set.");
+    	if(p.getProfile().getUser()==null)
+    		throw new Exception("'profile.user' field must be set.");
+    	if(p.getProfile().getUser().getUsername()==null)
+    		throw new Exception("'profile.user.username' field must be set.");
+    	if(!authPart.getUserName().equals(p.getProfile().getUser().getUsername()) &&
+    		!authPart.getUserName().equals(getConfig(CFG_ADMIN))) {
+    		throw new Exception("only the user '"+p.getProfile().getUser().getUsername()+
+    				"'or an admin can update this profile");
+    	}
+    	/*boolean replace = false;
+    	if(p.getReplace()!=null) {
+    		if(p.getReplace()>=1) {
+    			replace=true;
+    		}
+    	}*/
+    	
+    	db.setProfile(p.getProfile());
+    	
         //END set_user_profile
     }
 
