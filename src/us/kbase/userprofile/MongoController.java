@@ -67,7 +67,7 @@ public class MongoController {
 		jongo = new Jongo(db);
 		jProfiles = jongo.getCollection(COL_PROFILES);
 		ensureIndex();
-		/*System.out.println(getProfile("test3"));
+		/*System.out.println(getProfile("mike3"));
 		
 		User u = new User().withUsername("mike3").withRealname("oh yeah");
 		Map<String,String> m = new HashMap<String,String>();
@@ -183,7 +183,9 @@ public class MongoController {
 		
 		UserProfile up = new UserProfile().withUser(user);
 		if(result.get("profile")!=null) {
-			up.setProfile(new UObject(result.get("profile")));
+			//System.out.println(result.get("profile").toString());
+			//gotta be a better way to do this
+			up.setProfile(UObject.fromJsonString(result.get("profile").toString()));
 		}
 		return up;
 	}
