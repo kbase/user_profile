@@ -1,53 +1,29 @@
 package us.kbase.userprofile;
 
-import java.io.File;
 import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Set;
 
 
 
-
-
-import org.bson.BasicBSONObject;
 /*
 import org.apache.commons.lang3.StringUtils;*/
-import org.bson.types.ObjectId;
-import org.jongo.FindAndModify;
 import org.jongo.Jongo;
-import org.jongo.MongoCollection;
-import org.jongo.marshall.MarshallingException;
 
 import us.kbase.common.mongo.GetMongoDB;
 import us.kbase.common.mongo.exceptions.InvalidHostException;
 import us.kbase.common.mongo.exceptions.MongoAuthException;
 import us.kbase.common.service.UObject;
-import us.kbase.common.utils.CountingOutputStream;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DB;
 import com.mongodb.DBCollection;
 import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
-import com.mongodb.MongoException;
-import com.mongodb.WriteResult;
 import com.mongodb.util.JSON;
 
 public class MongoController {
@@ -56,8 +32,9 @@ public class MongoController {
 
 	private final DB db;
 	private final DBCollection profiles;
+	@SuppressWarnings("unused")
 	private final Jongo jongo;
-	private final MongoCollection jProfiles;
+	//private final MongoCollection jProfiles;
 	
 	public MongoController(final String host, final String database,final int mongoRetryCount)
 			throws UnknownHostException, IOException, InvalidHostException,InterruptedException {
@@ -65,14 +42,14 @@ public class MongoController {
 		db = GetMongoDB.getDB(host, database, mongoRetryCount, 10);
 		profiles = db.getCollection(COL_PROFILES);
 		jongo = new Jongo(db);
-		jProfiles = jongo.getCollection(COL_PROFILES);
+		//jProfiles = jongo.getCollection(COL_PROFILES);
 		ensureIndex();
 		/*System.out.println(getProfile("mike3"));
 		
 		User u = new User().withUsername("mike3").withRealname("oh yeah");
 		Map<String,String> m = new HashMap<String,String>();
-		//m.put("email", "test@test.com");
-		m.put("stuff", "things");
+		m.put("email", "test@test.com");
+		//m.put("stuff", "things");
 		UserProfile up = new UserProfile().withUser(u)
 							.withProfile(new UObject(m));
 		setProfile(up);
@@ -81,6 +58,18 @@ public class MongoController {
 		System.out.println("filtering...");
 		filterUsers("ik");*/
 	}
+	
+	public MongoController(final String host, final String database,final int mongoRetryCount,
+			final String mongoUser, final String mongoPswd)
+			throws UnknownHostException, IOException, InvalidHostException,
+			InterruptedException, MongoAuthException {
+		db = GetMongoDB.getDB(host, database, mongoUser, mongoPswd, mongoRetryCount, 10);
+		profiles = db.getCollection(COL_PROFILES);
+		jongo = new Jongo(db);
+		//jProfiles = jongo.getCollection(COL_PROFILES);
+		ensureIndex();
+	}
+	
 	
 	public List<User> filterUsers(String filter) {
 		
@@ -190,8 +179,52 @@ public class MongoController {
 		return up;
 	}
 	
+	
 	// assume UserProfile is validated
-	public void setProfile(UserProfile up) {
+		public void setProfile(UserProfile up) {
+			if(exists(up.getUser().getUsername())) {
+				DBObject user = new BasicDBObject("username",up.getUser().getUsername());
+				if(up.getUser().getRealname()!=null)
+					user.put("realname", up.getUser().getRealname());
+				if(up.getUser().getThumbnail()!=null)
+					user.put("thumbnail", up.getUser().getThumbnail());
+				
+				DBObject replacement = new BasicDBObject("user",user);
+				if(up.getProfile()!=null) {
+					if(up.getProfile().asJsonNode().isObject())
+						replacement.put("profile", JSON.parse(up.getProfile().asJsonNode().toString()));
+					else {
+						throw new RuntimeException("Profile must be an object if defined.");
+					}
+				} else {
+					replacement.put("profile", null);
+				}
+				System.out.println(replacement);
+				profiles.update(
+						new BasicDBObject("user.username",up.getUser().getUsername()),
+						new BasicDBObject("$set",replacement));
+			} else {
+				DBObject user = new BasicDBObject("username",up.getUser().getUsername())
+									.append("realname", up.getUser().getRealname())
+									.append("thumbnail", up.getUser().getThumbnail());
+				
+				DBObject profile = new BasicDBObject("user",user);
+				if(up.getProfile()!=null) {
+					if(up.getProfile().asJsonNode().isObject())
+						profile.put("profile", JSON.parse(up.getProfile().asJsonNode().toString()));
+					else {
+						throw new RuntimeException("Profile must be an object if defined.");
+					}
+				} else {
+					profile.put("profile", null);
+				}
+				profiles.insert(profile);
+			}
+		}
+	
+	
+	// assume UserProfile is validated
+	public void updateProfile(UserProfile up) {
 		if(exists(up.getUser().getUsername())) {
 			DBObject user = new BasicDBObject("username",up.getUser().getUsername());
 			if(up.getUser().getRealname()!=null)

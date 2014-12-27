@@ -52,11 +52,22 @@ module UserProfile {
         the UserProfile or as the admin account of this service.
         
         If the profile does not exist, one will be created.  If it does already exist,
+        then the entire user profile will be replaced with the new profile.
+    */
+    funcdef set_user_profile(SetUserProfileParams p) returns () authentication required;
+
+	/*
+        Update the UserProfile for the user indicated in the User field of the UserProfile
+        object.  This operation can only be performed if authenticated as the user in
+        the UserProfile or as the admin account of this service.
+        
+        If the profile does not exist, one will be created.  If it does already exist,
         then the specified top-level fields in profile will be updated.
         
         todo: add some way to remove fields.  Fields in profile can only be modified or added.
     */
-    funcdef set_user_profile(SetUserProfileParams p) returns () authentication required;
+    funcdef update_user_profile(SetUserProfileParams p) returns () authentication required;
+
 
 };
 

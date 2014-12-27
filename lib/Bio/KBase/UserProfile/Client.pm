@@ -426,9 +426,7 @@ object.  This operation can only be performed if authenticated as the user in
 the UserProfile or as the admin account of this service.
 
 If the profile does not exist, one will be created.  If it does already exist,
-then the specified top-level fields in profile will be updated.
-
-todo: add some way to remove fields.  Fields in profile can only be modified or added.
+then the entire user profile will be replaced with the new profile.
 
 =back
 
@@ -481,6 +479,114 @@ sub set_user_profile
 
 
 
+=head2 update_user_profile
+
+  $obj->update_user_profile($p)
+
+=over 4
+
+=item Parameter and return types
+
+=begin html
+
+<pre>
+$p is a UserProfile.SetUserProfileParams
+SetUserProfileParams is a reference to a hash where the following keys are defined:
+	profile has a value which is a UserProfile.UserProfile
+UserProfile is a reference to a hash where the following keys are defined:
+	user has a value which is a UserProfile.User
+	profile has a value which is an UnspecifiedObject, which can hold any non-null object
+User is a reference to a hash where the following keys are defined:
+	username has a value which is a UserProfile.username
+	realname has a value which is a UserProfile.realname
+	thumbnail has a value which is a string
+username is a string
+realname is a string
+
+</pre>
+
+=end html
+
+=begin text
+
+$p is a UserProfile.SetUserProfileParams
+SetUserProfileParams is a reference to a hash where the following keys are defined:
+	profile has a value which is a UserProfile.UserProfile
+UserProfile is a reference to a hash where the following keys are defined:
+	user has a value which is a UserProfile.User
+	profile has a value which is an UnspecifiedObject, which can hold any non-null object
+User is a reference to a hash where the following keys are defined:
+	username has a value which is a UserProfile.username
+	realname has a value which is a UserProfile.realname
+	thumbnail has a value which is a string
+username is a string
+realname is a string
+
+
+=end text
+
+=item Description
+
+Update the UserProfile for the user indicated in the User field of the UserProfile
+object.  This operation can only be performed if authenticated as the user in
+the UserProfile or as the admin account of this service.
+
+If the profile does not exist, one will be created.  If it does already exist,
+then the specified top-level fields in profile will be updated.
+
+todo: add some way to remove fields.  Fields in profile can only be modified or added.
+
+=back
+
+=cut
+
+sub update_user_profile
+{
+    my($self, @args) = @_;
+
+# Authentication: required
+
+    if ((my $n = @args) != 1)
+    {
+	Bio::KBase::Exceptions::ArgumentValidationError->throw(error =>
+							       "Invalid argument count for function update_user_profile (received $n, expecting 1)");
+    }
+    {
+	my($p) = @args;
+
+	my @_bad_arguments;
+        (ref($p) eq 'HASH') or push(@_bad_arguments, "Invalid type for argument 1 \"p\" (value was \"$p\")");
+        if (@_bad_arguments) {
+	    my $msg = "Invalid arguments passed to update_user_profile:\n" . join("", map { "\t$_\n" } @_bad_arguments);
+	    Bio::KBase::Exceptions::ArgumentValidationError->throw(error => $msg,
+								   method_name => 'update_user_profile');
+	}
+    }
+
+    my $result = $self->{client}->call($self->{url}, $self->{headers}, {
+	method => "UserProfile.update_user_profile",
+	params => \@args,
+    });
+    if ($result) {
+	if ($result->is_error) {
+	    Bio::KBase::Exceptions::JSONRPC->throw(error => $result->error_message,
+					       code => $result->content->{error}->{code},
+					       method_name => 'update_user_profile',
+					       data => $result->content->{error}->{error} # JSON::RPC::ReturnObject only supports JSONRPC 1.1 or 1.O
+					      );
+	} else {
+	    return;
+	}
+    } else {
+        Bio::KBase::Exceptions::HTTP->throw(error => "Error invoking method update_user_profile",
+					    status_line => $self->{client}->status_line,
+					    method_name => 'update_user_profile',
+				       );
+    }
+}
+
+
+
 sub version {
     my ($self) = @_;
     my $result = $self->{client}->call($self->{url}, $self->{headers}, {
@@ -492,16 +598,16 @@ sub version {
             Bio::KBase::Exceptions::JSONRPC->throw(
                 error => $result->error_message,
                 code => $result->content->{code},
-                method_name => 'set_user_profile',
+                method_name => 'update_user_profile',
             );
         } else {
             return wantarray ? @{$result->result} : $result->result->[0];
         }
     } else {
         Bio::KBase::Exceptions::HTTP->throw(
-            error => "Error invoking method set_user_profile",
+            error => "Error invoking method update_user_profile",
             status_line => $self->{client}->status_line,
-            method_name => 'set_user_profile',
+            method_name => 'update_user_profile',
         );
     }
 }

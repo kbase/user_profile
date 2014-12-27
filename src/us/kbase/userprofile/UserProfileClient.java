@@ -233,8 +233,7 @@ public class UserProfileClient {
      * object.  This operation can only be performed if authenticated as the user in
      * the UserProfile or as the admin account of this service.
      * If the profile does not exist, one will be created.  If it does already exist,
-     * then the specified top-level fields in profile will be updated.
-     * todo: add some way to remove fields.  Fields in profile can only be modified or added.
+     * then the entire user profile will be replaced with the new profile.
      * </pre>
      * @param   p   instance of type {@link us.kbase.userprofile.SetUserProfileParams SetUserProfileParams}
      * @throws IOException if an IO exception occurs
@@ -245,5 +244,26 @@ public class UserProfileClient {
         args.add(p);
         TypeReference<Object> retType = new TypeReference<Object>() {};
         caller.jsonrpcCall("UserProfile.set_user_profile", args, retType, false, true);
+    }
+
+    /**
+     * <p>Original spec-file function name: update_user_profile</p>
+     * <pre>
+     * Update the UserProfile for the user indicated in the User field of the UserProfile
+     * object.  This operation can only be performed if authenticated as the user in
+     * the UserProfile or as the admin account of this service.
+     * If the profile does not exist, one will be created.  If it does already exist,
+     * then the specified top-level fields in profile will be updated.
+     * todo: add some way to remove fields.  Fields in profile can only be modified or added.
+     * </pre>
+     * @param   p   instance of type {@link us.kbase.userprofile.SetUserProfileParams SetUserProfileParams}
+     * @throws IOException if an IO exception occurs
+     * @throws JsonClientException if a JSON RPC exception occurs
+     */
+    public void updateUserProfile(SetUserProfileParams p) throws IOException, JsonClientException {
+        List<Object> args = new ArrayList<Object>();
+        args.add(p);
+        TypeReference<Object> retType = new TypeReference<Object>() {};
+        caller.jsonrpcCall("UserProfile.update_user_profile", args, retType, false, true);
     }
 }

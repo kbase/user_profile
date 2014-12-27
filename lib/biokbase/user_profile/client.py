@@ -183,3 +183,7 @@ class UserProfile(object):
     def set_user_profile(self, p):
         self._call('UserProfile.set_user_profile',
                    [p])
+
+    def update_user_profile(self, p):
+        self._call('UserProfile.update_user_profile',
+                   [p])

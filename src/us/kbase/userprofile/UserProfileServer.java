@@ -70,6 +70,7 @@ public class UserProfileServer extends JsonServerServlet {
 
 	private final MongoController db;
 	
+	
     //END_CLASS_HEADER
 
     public UserProfileServer() throws Exception {
@@ -81,11 +82,27 @@ public class UserProfileServer extends JsonServerServlet {
         System.out.println(UserProfileServer.class.getName() + ": " + CFG_MONGO_RETRY +" = " + getConfig(CFG_MONGO_RETRY));
         System.out.println(UserProfileServer.class.getName() + ": " + CFG_ADMIN +" = " + getConfig(CFG_ADMIN));
         
-        db = new MongoController(
+        String mongoUser = ""; boolean useMongoAuth = true;
+        try{
+        	mongoUser = getConfig(CFG_MONGO_USER);
+        } catch (Exception e) {
+        	useMongoAuth = false;
+        }
+        
+        if(useMongoAuth) {
+        	db = new MongoController(
+            		getConfig(CFG_MONGO_HOST),
+            		getConfig(CFG_MONGO_DB),
+            		Integer.parseInt(getConfig(CFG_MONGO_RETRY)),
+            		mongoUser,
+            		getConfig(CFG_MONGO_PSWD)
+            		);
+        } else {
+        	db = new MongoController(
         		getConfig(CFG_MONGO_HOST),
         		getConfig(CFG_MONGO_DB),
         		Integer.parseInt(getConfig(CFG_MONGO_RETRY)));
-        
+        }
         //END_CONSTRUCTOR
     }
 
@@ -153,8 +170,7 @@ public class UserProfileServer extends JsonServerServlet {
      * object.  This operation can only be performed if authenticated as the user in
      * the UserProfile or as the admin account of this service.
      * If the profile does not exist, one will be created.  If it does already exist,
-     * then the specified top-level fields in profile will be updated.
-     * todo: add some way to remove fields.  Fields in profile can only be modified or added.
+     * then the entire user profile will be replaced with the new profile.
      * </pre>
      * @param   p   instance of type {@link us.kbase.userprofile.SetUserProfileParams SetUserProfileParams}
      */
@@ -172,16 +188,41 @@ public class UserProfileServer extends JsonServerServlet {
     		throw new Exception("only the user '"+p.getProfile().getUser().getUsername()+
     				"'or an admin can update this profile");
     	}
-    	/*boolean replace = false;
-    	if(p.getReplace()!=null) {
-    		if(p.getReplace()>=1) {
-    			replace=true;
-    		}
-    	}*/
     	
     	db.setProfile(p.getProfile());
     	
         //END set_user_profile
+    }
+
+    /**
+     * <p>Original spec-file function name: update_user_profile</p>
+     * <pre>
+     * Update the UserProfile for the user indicated in the User field of the UserProfile
+     * object.  This operation can only be performed if authenticated as the user in
+     * the UserProfile or as the admin account of this service.
+     * If the profile does not exist, one will be created.  If it does already exist,
+     * then the specified top-level fields in profile will be updated.
+     * todo: add some way to remove fields.  Fields in profile can only be modified or added.
+     * </pre>
+     * @param   p   instance of type {@link us.kbase.userprofile.SetUserProfileParams SetUserProfileParams}
+     */
+    @JsonServerMethod(rpc = "UserProfile.update_user_profile")
+    public void updateUserProfile(SetUserProfileParams p, AuthToken authPart) throws Exception {
+        //BEGIN update_user_profile
+    	if(p.getProfile()==null)
+    		throw new Exception("'profile' field must be set.");
+    	if(p.getProfile().getUser()==null)
+    		throw new Exception("'profile.user' field must be set.");
+    	if(p.getProfile().getUser().getUsername()==null)
+    		throw new Exception("'profile.user.username' field must be set.");
+    	if(!authPart.getUserName().equals(p.getProfile().getUser().getUsername()) &&
+    		!authPart.getUserName().equals(getConfig(CFG_ADMIN))) {
+    		throw new Exception("only the user '"+p.getProfile().getUser().getUsername()+
+    				"'or an admin can update this profile");
+    	}
+    	
+    	db.updateProfile(p.getProfile());
+        //END update_user_profile
     }
 
     public static void main(String[] args) throws Exception {
