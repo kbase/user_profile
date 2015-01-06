@@ -248,10 +248,10 @@ public class UserProfileServer extends JsonServerServlet {
         Map<String,GlobusUser> returnVal = null;
         //BEGIN lookup_globus_user
     	Map<String, UserDetail> data = AuthService.fetchUserDetail(usernames, authPart);
-    	Map<String, GlobusUser> ret = new HashMap<String, GlobusUser>(data.size());
+    	returnVal = new HashMap<String, GlobusUser>(data.size());
 
     	for (UserDetail ud : data.values()) {
-    		ret.put(ud.getUserName(), 
+    		returnVal.put(ud.getUserName(), 
     					new GlobusUser()
     						.withEmail(ud.getEmail())
     						.withFullName(ud.getFullName())
