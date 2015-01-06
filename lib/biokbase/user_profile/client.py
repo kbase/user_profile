@@ -187,3 +187,8 @@ class UserProfile(object):
     def update_user_profile(self, p):
         self._call('UserProfile.update_user_profile',
                    [p])
+
+    def lookup_globus_user(self, usernames):
+        resp = self._call('UserProfile.lookup_globus_user',
+                          [usernames])
+        return resp[0]

@@ -7,6 +7,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import us.kbase.auth.AuthToken;
 import us.kbase.common.service.JsonClientCaller;
 import us.kbase.common.service.JsonClientException;
@@ -265,5 +266,22 @@ public class UserProfileClient {
         args.add(p);
         TypeReference<Object> retType = new TypeReference<Object>() {};
         caller.jsonrpcCall("UserProfile.update_user_profile", args, retType, false, true);
+    }
+
+    /**
+     * <p>Original spec-file function name: lookup_globus_user</p>
+     * <pre>
+     * </pre>
+     * @param   usernames   instance of list of original type "username"
+     * @return   parameter "users" of mapping from original type "username" to type {@link us.kbase.userprofile.GlobusUser GlobusUser}
+     * @throws IOException if an IO exception occurs
+     * @throws JsonClientException if a JSON RPC exception occurs
+     */
+    public Map<String,GlobusUser> lookupGlobusUser(List<String> usernames) throws IOException, JsonClientException {
+        List<Object> args = new ArrayList<Object>();
+        args.add(usernames);
+        TypeReference<List<Map<String,GlobusUser>>> retType = new TypeReference<List<Map<String,GlobusUser>>>() {};
+        List<Map<String,GlobusUser>> res = caller.jsonrpcCall("UserProfile.lookup_globus_user", args, retType, true, true);
+        return res.get(0);
     }
 }

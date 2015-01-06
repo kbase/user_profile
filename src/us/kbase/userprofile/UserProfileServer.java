@@ -1,15 +1,26 @@
 package us.kbase.userprofile;
 
+import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
-import us.kbase.auth.AuthToken;
+import java.util.Map;
+
 import us.kbase.common.service.JsonServerMethod;
 import us.kbase.common.service.JsonServerServlet;
 
+
+
+
+
 //BEGIN_HEADER
 import java.util.ArrayList;
-import java.util.Map;
+
+import us.kbase.auth.AuthService;
+import us.kbase.auth.AuthToken;
+import us.kbase.auth.UserDetail;
 
 import org.ini4j.Ini;
+
 import java.io.File;
 //END_HEADER
 
@@ -223,6 +234,33 @@ public class UserProfileServer extends JsonServerServlet {
     	
     	db.updateProfile(p.getProfile());
         //END update_user_profile
+    }
+
+    /**
+     * <p>Original spec-file function name: lookup_globus_user</p>
+     * <pre>
+     * </pre>
+     * @param   usernames   instance of list of original type "username"
+     * @return   parameter "users" of mapping from original type "username" to type {@link us.kbase.userprofile.GlobusUser GlobusUser}
+     */
+    @JsonServerMethod(rpc = "UserProfile.lookup_globus_user")
+    public Map<String,GlobusUser> lookupGlobusUser(List<String> usernames, AuthToken authPart) throws Exception {
+        Map<String,GlobusUser> returnVal = null;
+        //BEGIN lookup_globus_user
+    	String tokenParam = authPart.getTokenData();
+    	AuthToken token = new AuthToken(tokenParam);
+    	Map<String, UserDetail> data = AuthService.fetchUserDetail(usernames, token);
+    	Map<String, GlobusUser> ret = new HashMap<String, GlobusUser>(data.size());
+
+    	for (UserDetail ud : data.values()) {
+    		ret.put(ud.getUserName(), 
+    					new GlobusUser()
+    						.withEmail(ud.getEmail())
+    						.withFullName(ud.getFullName())
+    						.withUserName(ud.getUserName()));
+    	}
+        //END lookup_globus_user
+        return returnVal;
     }
 
     public static void main(String[] args) throws Exception {
