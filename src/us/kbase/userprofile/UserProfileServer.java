@@ -247,9 +247,7 @@ public class UserProfileServer extends JsonServerServlet {
     public Map<String,GlobusUser> lookupGlobusUser(List<String> usernames, AuthToken authPart) throws Exception {
         Map<String,GlobusUser> returnVal = null;
         //BEGIN lookup_globus_user
-    	String tokenParam = authPart.getTokenData();
-    	AuthToken token = new AuthToken(tokenParam);
-    	Map<String, UserDetail> data = AuthService.fetchUserDetail(usernames, token);
+    	Map<String, UserDetail> data = AuthService.fetchUserDetail(usernames, authPart);
     	Map<String, GlobusUser> ret = new HashMap<String, GlobusUser>(data.size());
 
     	for (UserDetail ud : data.values()) {
