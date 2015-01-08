@@ -84,10 +84,14 @@ public class MongoController {
 				if(!d.containsField("username")) continue;
 				u.setUsername(d.get("username").toString());
 				if(d.containsField("realname")) {
-					u.setRealname(d.get("realname").toString());
+					if(d.get("realname")!=null) {
+						u.setRealname(d.get("realname").toString());
+					}
 				}
 				if(d.containsField("thumbnail")) {
-					u.setThumbnail(d.get("thumbnail").toString());
+					if(d.get("thumbnail")!=null) {
+						u.setThumbnail(d.get("thumbnail").toString());
+					}
 				}
 				//System.out.println(u);
 				users.add(u);
