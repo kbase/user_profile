@@ -115,20 +115,24 @@ public class MongoController {
 			}
 			
 			if(d.containsField("realname")) {
-				String rname = d.get("realname").toString();
-				u.setRealname(rname);
-				if(!add) {
-					add = true;
-					for(int i=0; i<terms.length; i++) {
-						if(!rname.toLowerCase().contains(terms[i].toLowerCase())
-							&& !uname.toLowerCase().contains(terms[i].toLowerCase())){
-							add = false; break;
+				if(d.get("realname")!=null) {
+					String rname = d.get("realname").toString();
+					u.setRealname(rname);
+					if(!add) {
+						add = true;
+						for(int i=0; i<terms.length; i++) {
+							if(!rname.toLowerCase().contains(terms[i].toLowerCase())
+								&& !uname.toLowerCase().contains(terms[i].toLowerCase())){
+								add = false; break;
+							}
 						}
 					}
 				}
 			}
 			if(d.containsField("thumbnail")) {
-				u.setThumbnail(d.get("thumbnail").toString());
+				if(d.get("thumbnail")!=null) {
+					u.setThumbnail(d.get("thumbnail").toString());
+				}
 			}
 			
 			// only add if it was found
