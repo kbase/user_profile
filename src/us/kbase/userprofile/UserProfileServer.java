@@ -251,10 +251,12 @@ public class UserProfileServer extends JsonServerServlet {
     	returnVal = new HashMap<String, GlobusUser>(data.size());
 
     	for (UserDetail ud : data.values()) {
-    		GlobusUser gu = new GlobusUser().withUserName(ud.getUserName());
-    		if(ud.getEmail()!=null) { gu.setEmail(ud.getEmail()); }
-    		if(ud.getFullName()!=null) { gu.setFullName(ud.getFullName()); }
-    		returnVal.put(ud.getUserName(), gu);
+    		if(ud!=null) {
+	    		GlobusUser gu = new GlobusUser().withUserName(ud.getUserName());
+	    		if(ud.getEmail()!=null) { gu.setEmail(ud.getEmail()); }
+	    		if(ud.getFullName()!=null) { gu.setFullName(ud.getFullName()); }
+	    		returnVal.put(ud.getUserName(), gu);
+    		}
     	}
         //END lookup_globus_user
         return returnVal;
