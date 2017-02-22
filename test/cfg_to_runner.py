@@ -18,8 +18,10 @@ CONFIG_OPTS = ['test.temp-dir',
                'test.mongodb-database',
                'test.admin',
                'test.admin-pwd',
+               'test.admin-token',
                'test.usr1',
                'test.usr1-pwd',
+               'test.usr1-token',
                'test.auth-service-url'
                ]
 

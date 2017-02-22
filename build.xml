@@ -209,8 +209,10 @@
     <fail unless="test.mongodb-database" message="test.mongodb-database not set"/>
     <fail unless="test.admin" message="test.admin not set"/>
     <fail unless="test.admin-pwd" message="test.admin-pwd not set"/>
+    <fail unless="test.admin-token" message="test.usr1-token not set"/>
     <fail unless="test.usr1" message="test.usr1 not set"/>
     <fail unless="test.usr1-pwd" message="test.usr1-pwd not set"/>
+    <fail unless="test.usr1-token" message="test.usr1-pwd not set"/>
     <fail unless="test.auth-service-url" message="test.auth-service-url not set"/>
     <echo message="starting ${package} tests"/>
     <junit fork="yes" maxmemory="3G" failureproperty="test.failed">
@@ -221,9 +223,11 @@
       <sysproperty key="test.mongodb-host" value="${test.mongodb-host}"/>
       <sysproperty key="test.mongodb-database" value="${test.mongodb-database}"/>
       <sysproperty key="test.admin" value="${test.admin}"/>
+      <sysproperty key="test.admin-token" value="${test.admin-token}"/>
       <sysproperty key="test.admin-pwd" value="${test.admin-pwd}"/>
       <sysproperty key="test.usr1" value="${test.usr1}"/>
       <sysproperty key="test.usr1-pwd" value="${test.usr1-pwd}"/>
+      <sysproperty key="test.usr1-token" value="${test.usr1-token}"/>
       <sysproperty key="test.auth-service-url" value="${test.auth-service-url}"/>
       <test name="us.kbase.userprofile.test.FullServerTest"/>
     </junit>

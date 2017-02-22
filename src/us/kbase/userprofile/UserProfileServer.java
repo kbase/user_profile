@@ -40,12 +40,13 @@ public class UserProfileServer extends JsonServerServlet {
     public static final String SYS_PROP_KB_DEPLOYMENT_CONFIG = "KB_DEPLOYMENT_CONFIG";
     public static final String SERVICE_DEPLOYMENT_NAME = "UserProfile";
     
-    public static final String   CFG_MONGO_HOST = "mongodb-host";
-    public static final String     CFG_MONGO_DB = "mongodb-database";
-    public static final String   CFG_MONGO_USER = "mongodb-user";
-    public static final String   CFG_MONGO_PSWD = "mongodb-pwd";
-    public static final String  CFG_MONGO_RETRY = "mongodb-retry";
-    public static final String        CFG_ADMIN = "admin";
+    public static final String            CFG_MONGO_HOST = "mongodb-host";
+    public static final String              CFG_MONGO_DB = "mongodb-database";
+    public static final String            CFG_MONGO_USER = "mongodb-user";
+    public static final String            CFG_MONGO_PSWD = "mongodb-pwd";
+    public static final String           CFG_MONGO_RETRY = "mongodb-retry";
+    public static final String                 CFG_ADMIN = "admin";
+    public static final String CFG_PROP_AUTH_SERVICE_URL = "auth-service-url";
     
     private static Throwable configError = null;
     private static Map<String, String> config = null;
@@ -82,14 +83,20 @@ public class UserProfileServer extends JsonServerServlet {
     }
 
 	private final MongoController db;
-	
-	
+
+
     //END_CLASS_HEADER
 
     public UserProfileServer() throws Exception {
         super("UserProfile");
         //BEGIN_CONSTRUCTOR
-        
+
+        String authServiceUrl = config().get(CFG_PROP_AUTH_SERVICE_URL);
+        if (authServiceUrl == null) {
+            throw new IllegalStateException("Parameter " + CFG_PROP_AUTH_SERVICE_URL + " is not defined in configuration");
+        }
+        System.out.println(UserProfileServer.class.getName() + ": " + CFG_PROP_AUTH_SERVICE_URL +" = " + authServiceUrl);
+
         System.out.println(UserProfileServer.class.getName() + ": " + CFG_MONGO_HOST +" = " + getConfig(CFG_MONGO_HOST));
         System.out.println(UserProfileServer.class.getName() + ": " + CFG_MONGO_DB +" = " + getConfig(CFG_MONGO_DB));
         System.out.println(UserProfileServer.class.getName() + ": " + CFG_MONGO_RETRY +" = " + getConfig(CFG_MONGO_RETRY));
