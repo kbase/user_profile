@@ -1,0 +1,4 @@
+*.java.bak-*
+test/test.cfg
+classes
+dist
