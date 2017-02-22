@@ -13,13 +13,14 @@ ANT = 'ant'
 CFG_SECTION = 'UserProfile'
 
 CONFIG_OPTS = ['test.temp-dir',
-               'test.remove-temp-dir',  
+               'test.remove-temp-dir',
                'test.mongodb-host',
                'test.mongodb-database',
                'test.admin',
                'test.admin-pwd',
                'test.usr1',
-               'test.usr1-pwd'
+               'test.usr1-pwd',
+               'test.auth-service-url'
                ]
 
 
