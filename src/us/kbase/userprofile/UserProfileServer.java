@@ -50,7 +50,8 @@ public class UserProfileServer extends JsonServerServlet {
     public static final String                 CFG_ADMIN = "admin";
     public static final String CFG_PROP_AUTH_SERVICE_URL = "auth-service-url";
     public static final String       CFG_PROP_GLOBUS_URL = "globus-url";
-    
+    public static final String    CFG_PROP_AUTH_INSECURE = "auth-service-url-allow-insecure";
+
     private static Throwable configError = null;
     private static Map<String, String> config = null;
 
@@ -88,7 +89,7 @@ public class UserProfileServer extends JsonServerServlet {
 	private final MongoController db;
     private final URL authServiceUrl;
     private final URL globusUrl;
-
+    private final boolean authAllowInsecure;
 
     //END_CLASS_HEADER
 
@@ -115,6 +116,12 @@ public class UserProfileServer extends JsonServerServlet {
         System.out.println(UserProfileServer.class.getName() + ": " + CFG_MONGO_RETRY +" = " + getConfig(CFG_MONGO_RETRY));
         System.out.println(UserProfileServer.class.getName() + ": " + CFG_ADMIN +" = " + getConfig(CFG_ADMIN));
         
+        String authAllowInsecureString = config().get(CFG_PROP_AUTH_INSECURE);
+        System.out.print(UserProfileServer.class.getName() + ": " + CFG_PROP_AUTH_INSECURE +" = " + 
+                                (authAllowInsecureString == null ? "<not-set>" : authAllowInsecureString));
+        this.authAllowInsecure = "true".equals(authAllowInsecureString);
+        System.out.println(" [flag interpreted to be:"+this.authAllowInsecure + "]");
+
         String mongoUser = ""; boolean useMongoAuth = true;
         try{
         	mongoUser = getConfig(CFG_MONGO_USER);
@@ -136,6 +143,7 @@ public class UserProfileServer extends JsonServerServlet {
         		getConfig(CFG_MONGO_DB),
         		Integer.parseInt(getConfig(CFG_MONGO_RETRY)));
         }
+
         //END_CONSTRUCTOR
     }
 
@@ -274,6 +282,7 @@ public class UserProfileServer extends JsonServerServlet {
                                                         new AuthConfig()
                                                             .withKBaseAuthServerURL(authServiceUrl)
                                                             .withGlobusAuthURL(globusUrl)
+                                                            .withAllowInsecureURLs(authAllowInsecure)
                                                     );
 
     	Map<String, UserDetail> data = authService.fetchUserDetail(usernames, authPart);

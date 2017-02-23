@@ -174,6 +174,7 @@ public class FullServerTest {
 		String user1Token = System.getProperty("test.usr1-token");
 		String authServiceUrl = System.getProperty("test.auth-service-url");
 		String globusUrl = System.getProperty("test.globus-url");
+		String authAllowInsecureString = System.getProperty("test.auth-service-url-allow-insecure");
 		
 		String s = System.getProperty("test.remove-temp-dir");
 		
@@ -182,15 +183,16 @@ public class FullServerTest {
 		System.out.println("test.mongodb-database = " + mongoDatabase);
 		System.out.println("test.admin            = " + admin);
 		System.out.println("test.usr1             = " + user1);
-		System.out.println("test.usr1             = " + user1Token);
 		System.out.println("test.auth-service-url = " + authServiceUrl);
 		System.out.println("test.globus-url       = " + globusUrl);
+		System.out.println("test.auth-service-url-allow-insecure = " + authAllowInsecureString);
 
 		// Create tokens for the admin account and usr1 account
 		ConfigurableAuthService authService = new ConfigurableAuthService(
 														new AuthConfig()
 															.withKBaseAuthServerURL(new URL(authServiceUrl))
 															.withGlobusAuthURL(new URL(globusUrl))
+															.withAllowInsecureURLs("true".equals(authAllowInsecureString))
 													);
 
 		AuthToken user1AuthToken;
@@ -241,6 +243,7 @@ public class FullServerTest {
 		ws.add(UserProfileServer.CFG_ADMIN, admin);
 		ws.add(UserProfileServer.CFG_PROP_AUTH_SERVICE_URL, authServiceUrl);
 		ws.add(UserProfileServer.CFG_PROP_GLOBUS_URL, globusUrl);
+		ws.add(UserProfileServer.CFG_PROP_AUTH_INSECURE, authAllowInsecureString);
 		
 		ini.store(iniFile);
 		iniFile.deleteOnExit();

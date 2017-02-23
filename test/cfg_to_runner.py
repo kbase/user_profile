@@ -23,7 +23,8 @@ CONFIG_OPTS = ['test.temp-dir',
                'test.usr1-pwd',
                'test.usr1-token',
                'test.auth-service-url',
-               'test.globus-url'
+               'test.globus-url',
+               'test.auth-service-url-allow-insecure'
                ]
 
 
