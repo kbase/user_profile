@@ -28,6 +28,7 @@ import us.kbase.userprofile.FilterParams;
 import us.kbase.userprofile.SetUserProfileParams;
 import us.kbase.userprofile.User;
 import us.kbase.userprofile.UserProfile;
+import us.kbase.userprofile.GlobusUser;
 import us.kbase.userprofile.UserProfileClient;
 import us.kbase.userprofile.UserProfileServer;
 
@@ -81,7 +82,7 @@ public class FullServerTest {
 	public void testFilterUsers() throws Exception {
 		FilterParams p = new FilterParams().withFilter("");
 		List<User> users = CLIENT.filterUsers(p);
-		System.out.println("got users: length: "+users.size());
+		System.out.println("calling filterUsers(\"\"), got users: length: "+users.size());
 	}
 	
 	@Test
@@ -96,7 +97,7 @@ public class FullServerTest {
 								.withProfile(UObject.fromJsonString(jsonProfile1));
 		USR1_CLIENT.setUserProfile(new SetUserProfileParams().withProfile(p));
 
-		// Profile is visible
+		// Profile is visible to an anonymous user
 		List<UserProfile> profiles = CLIENT.getUserProfile(Arrays.asList(USER1_NAME));
 		assertEquals(1, profiles.size());
 		UserProfile ret = profiles.get(0);
@@ -112,7 +113,7 @@ public class FullServerTest {
 								.withProfile(UObject.fromJsonString(jsonProfile2));
 		ADMIN_CLIENT.setUserProfile(new SetUserProfileParams().withProfile(p2));
 
-		// Profile is updated
+		// Profile is updated as expected
 		List<UserProfile> profiles2 = CLIENT.getUserProfile(Arrays.asList(USER1_NAME));
 		assertEquals(1, profiles2.size());
 		UserProfile ret2 = profiles2.get(0);
@@ -120,11 +121,43 @@ public class FullServerTest {
 		assertEquals("yeah2", ret2.getProfile().asMap().get("stuff").asScalar());
 
 
-		FilterParams fp = new FilterParams().withFilter("");
-		List<User> users = CLIENT.filterUsers(fp);
-		System.out.println("got users: length: "+users.size());
+		// User1 adds a field to the profile
+		String jsonProfileUpdate = "{\"new_stuff\":\"yeah\"}";
+		UserProfile p3 = new UserProfile()
+								.withUser(new User()
+											.withUsername(USER1_NAME))
+								.withProfile(UObject.fromJsonString(jsonProfileUpdate));
+		USR1_CLIENT.updateUserProfile(new SetUserProfileParams().withProfile(p3));
+
+		// Profile is updated as expected
+		List<UserProfile> profiles3 = CLIENT.getUserProfile(Arrays.asList(USER1_NAME));
+		assertEquals(1, profiles3.size());
+		UserProfile ret3 = profiles3.get(0);
+		assertEquals(USER1_NAME, ret3.getUser().getUsername());
+		assertEquals("yeah2", ret3.getProfile().asMap().get("stuff").asScalar());
+		assertEquals("yeah", ret3.getProfile().asMap().get("new_stuff").asScalar());
+
+
+		// Make sure that when we filter users, we get at least this one hit.
+		List<User> users = CLIENT.filterUsers( new FilterParams().withFilter(""));
+		assertTrue(0<users.size());
+		users = CLIENT.filterUsers( new FilterParams().withFilter(USER1_NAME));
+		assertTrue(0<users.size());
 	}
-	
+
+	@Test
+	public void testFetchGlobusUser() throws Exception {
+		Map<String, GlobusUser> results = USR1_CLIENT.lookupGlobusUser(Arrays.asList("msneddon", USER1_NAME));
+		assertEquals(2, results.size());
+		assertNotNull(results.get(USER1_NAME).getEmail());
+		assertNotNull(results.get(USER1_NAME).getFullName());
+		assertNotNull(results.get("msneddon").getFullName());
+		assertTrue(0<results.get(USER1_NAME).getEmail().length());
+		assertTrue(0<results.get(USER1_NAME).getFullName().length());
+		assertTrue(0<results.get("msneddon").getFullName().length());
+	}
+
+
 	@BeforeClass
 	public static void setUpClass() throws Exception {
 

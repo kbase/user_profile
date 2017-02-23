@@ -245,7 +245,6 @@ public class MongoController {
 				JsonNode profileNode = up.getProfile().asJsonNode();
 				System.out.println(profileNode);
 				if( profileNode.isObject() ) {
-					System.out.println("here");
 					Iterator<Entry<String, JsonNode>> fields = profileNode.fields();
 					while(fields.hasNext()) {
 						Entry<String,JsonNode> e= fields.next();
