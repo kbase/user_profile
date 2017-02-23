@@ -214,6 +214,7 @@
     <fail unless="test.usr1-pwd" message="test.usr1-pwd not set"/>
     <fail unless="test.usr1-token" message="test.usr1-pwd not set"/>
     <fail unless="test.auth-service-url" message="test.auth-service-url not set"/>
+    <fail unless="test.globus-url" message="test.globus-url not set"/>
     <echo message="starting ${package} tests"/>
     <junit fork="yes" maxmemory="3G" failureproperty="test.failed">
       <classpath refid="test.classpath"/>
@@ -229,6 +230,7 @@
       <sysproperty key="test.usr1-pwd" value="${test.usr1-pwd}"/>
       <sysproperty key="test.usr1-token" value="${test.usr1-token}"/>
       <sysproperty key="test.auth-service-url" value="${test.auth-service-url}"/>
+      <sysproperty key="test.globus-url" value="${test.globus-url}"/>
       <test name="us.kbase.userprofile.test.FullServerTest"/>
     </junit>
     <fail message="Test failure detected, check test results." if="test.failed" />

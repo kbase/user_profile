@@ -14,8 +14,10 @@ import us.kbase.common.service.RpcContext;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import us.kbase.auth.AuthService;
-import us.kbase.auth.AuthToken;
+import java.net.URL;
+
+import us.kbase.auth.ConfigurableAuthService;
+import us.kbase.auth.AuthConfig;
 import us.kbase.auth.UserDetail;
 
 import org.ini4j.Ini;
@@ -35,7 +37,7 @@ public class UserProfileServer extends JsonServerServlet {
     private static final String gitCommitHash = "28d01844f1e20012708bf6ce4c66db4ac1f5778f";
 
     //BEGIN_CLASS_HEADER
-    public static final String VERSION = "0.1.0";
+    public static final String VERSION = "0.2.0";
     
     public static final String SYS_PROP_KB_DEPLOYMENT_CONFIG = "KB_DEPLOYMENT_CONFIG";
     public static final String SERVICE_DEPLOYMENT_NAME = "UserProfile";
@@ -47,6 +49,7 @@ public class UserProfileServer extends JsonServerServlet {
     public static final String           CFG_MONGO_RETRY = "mongodb-retry";
     public static final String                 CFG_ADMIN = "admin";
     public static final String CFG_PROP_AUTH_SERVICE_URL = "auth-service-url";
+    public static final String       CFG_PROP_GLOBUS_URL = "globus-url";
     
     private static Throwable configError = null;
     private static Map<String, String> config = null;
@@ -83,6 +86,8 @@ public class UserProfileServer extends JsonServerServlet {
     }
 
 	private final MongoController db;
+    private final URL authServiceUrl;
+    private final URL globusUrl;
 
 
     //END_CLASS_HEADER
@@ -91,11 +96,19 @@ public class UserProfileServer extends JsonServerServlet {
         super("UserProfile");
         //BEGIN_CONSTRUCTOR
 
-        String authServiceUrl = config().get(CFG_PROP_AUTH_SERVICE_URL);
-        if (authServiceUrl == null) {
+        String authServiceUrlString = config().get(CFG_PROP_AUTH_SERVICE_URL);
+        if (authServiceUrlString == null) {
             throw new IllegalStateException("Parameter " + CFG_PROP_AUTH_SERVICE_URL + " is not defined in configuration");
         }
-        System.out.println(UserProfileServer.class.getName() + ": " + CFG_PROP_AUTH_SERVICE_URL +" = " + authServiceUrl);
+        System.out.println(UserProfileServer.class.getName() + ": " + CFG_PROP_AUTH_SERVICE_URL +" = " + authServiceUrlString);
+        this.authServiceUrl = new URL(authServiceUrlString);
+
+        String globusUrlString = config().get(CFG_PROP_GLOBUS_URL);
+        if (globusUrlString == null) {
+            throw new IllegalStateException("Parameter " + CFG_PROP_GLOBUS_URL + " is not defined in configuration");
+        }
+        System.out.println(UserProfileServer.class.getName() + ": " + CFG_PROP_GLOBUS_URL +" = " + globusUrlString);
+        this.globusUrl = new URL(globusUrlString);
 
         System.out.println(UserProfileServer.class.getName() + ": " + CFG_MONGO_HOST +" = " + getConfig(CFG_MONGO_HOST));
         System.out.println(UserProfileServer.class.getName() + ": " + CFG_MONGO_DB +" = " + getConfig(CFG_MONGO_DB));
@@ -256,7 +269,14 @@ public class UserProfileServer extends JsonServerServlet {
     public Map<String,GlobusUser> lookupGlobusUser(List<String> usernames, AuthToken authPart, RpcContext jsonRpcContext) throws Exception {
         Map<String,GlobusUser> returnVal = null;
         //BEGIN lookup_globus_user
-    	Map<String, UserDetail> data = AuthService.fetchUserDetail(usernames, authPart);
+
+        ConfigurableAuthService authService = new ConfigurableAuthService(
+                                                        new AuthConfig()
+                                                            .withKBaseAuthServerURL(authServiceUrl)
+                                                            .withGlobusAuthURL(globusUrl)
+                                                    );
+
+    	Map<String, UserDetail> data = authService.fetchUserDetail(usernames, authPart);
     	returnVal = new HashMap<String, GlobusUser>(data.size());
 
     	for (UserDetail ud : data.values()) {

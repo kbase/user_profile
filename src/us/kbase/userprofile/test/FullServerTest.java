@@ -140,6 +140,7 @@ public class FullServerTest {
 		String user1Pwd = System.getProperty("test.usr1-pwd");
 		String user1Token = System.getProperty("test.usr1-token");
 		String authServiceUrl = System.getProperty("test.auth-service-url");
+		String globusUrl = System.getProperty("test.globus-url");
 		
 		String s = System.getProperty("test.remove-temp-dir");
 		
@@ -150,13 +151,13 @@ public class FullServerTest {
 		System.out.println("test.usr1             = " + user1);
 		System.out.println("test.usr1             = " + user1Token);
 		System.out.println("test.auth-service-url = " + authServiceUrl);
+		System.out.println("test.globus-url       = " + globusUrl);
 
 		// Create tokens for the admin account and usr1 account
 		ConfigurableAuthService authService = new ConfigurableAuthService(
 														new AuthConfig()
-															.withKBaseAuthServerURL(
-																new URL(authServiceUrl)
-															)
+															.withKBaseAuthServerURL(new URL(authServiceUrl))
+															.withGlobusAuthURL(new URL(globusUrl))
 													);
 
 		AuthToken user1AuthToken;
@@ -201,12 +202,12 @@ public class FullServerTest {
 		
 		Ini ini = new Ini();
 		Section ws = ini.add("UserProfile");
-		
-		ws.add("mongodb-host", mongoHost);
-		ws.add("mongodb-database", mongoDatabase);
-		ws.add("mongodb-retry", "0");
-		ws.add("admin", admin);
+		ws.add(UserProfileServer.CFG_MONGO_HOST, mongoHost);
+		ws.add(UserProfileServer.CFG_MONGO_DB , mongoDatabase);
+		ws.add(UserProfileServer.CFG_MONGO_RETRY, "0");
+		ws.add(UserProfileServer.CFG_ADMIN, admin);
 		ws.add(UserProfileServer.CFG_PROP_AUTH_SERVICE_URL, authServiceUrl);
+		ws.add(UserProfileServer.CFG_PROP_GLOBUS_URL, globusUrl);
 		
 		ini.store(iniFile);
 		iniFile.deleteOnExit();
