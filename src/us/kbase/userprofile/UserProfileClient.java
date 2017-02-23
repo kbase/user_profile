@@ -11,6 +11,7 @@ import java.util.Map;
 import us.kbase.auth.AuthToken;
 import us.kbase.common.service.JsonClientCaller;
 import us.kbase.common.service.JsonClientException;
+import us.kbase.common.service.RpcContext;
 import us.kbase.common.service.UnauthorizedException;
 
 /**
@@ -20,6 +21,7 @@ import us.kbase.common.service.UnauthorizedException;
  */
 public class UserProfileClient {
     private JsonClientCaller caller;
+    private String serviceVersion = null;
     private static URL DEFAULT_URL = null;
     static {
         try {
@@ -62,6 +64,20 @@ public class UserProfileClient {
      */
     public UserProfileClient(URL url, String user, String password) throws UnauthorizedException, IOException {
         caller = new JsonClientCaller(url, user, password);
+    }
+
+    /** Constructs a client with a custom URL
+     * and a custom authorization service URL.
+     * @param url the URL of the service.
+     * @param user the user name.
+     * @param password the password for the user name.
+     * @param auth the URL of the authorization server.
+     * @throws UnauthorizedException if the credentials are not valid.
+     * @throws IOException if an IOException occurs when checking the user's
+     * credentials.
+     */
+    public UserProfileClient(URL url, String user, String password, URL auth) throws UnauthorizedException, IOException {
+        caller = new JsonClientCaller(url, user, password, auth);
     }
 
     /** Constructs a client with the default URL.
@@ -130,7 +146,7 @@ public class UserProfileClient {
         caller.setInsecureHttpConnectionAllowed(allowed);
     }
 
-    /** Deprecated. Use setInsecureHttpConnectionAllowed().
+    /** Deprecated. Use setIsInsecureHttpConnectionAllowed().
      * @deprecated
      */
     public void setAuthAllowedForHttp(boolean isAuthAllowedForHttp) {
@@ -172,6 +188,14 @@ public class UserProfileClient {
         caller.setFileForNextRpcResponse(f);
     }
 
+    public String getServiceVersion() {
+        return this.serviceVersion;
+    }
+
+    public void setServiceVersion(String newValue) {
+        this.serviceVersion = newValue;
+    }
+
     /**
      * <p>Original spec-file function name: ver</p>
      * <pre>
@@ -180,10 +204,10 @@ public class UserProfileClient {
      * @throws IOException if an IO exception occurs
      * @throws JsonClientException if a JSON RPC exception occurs
      */
-    public String ver() throws IOException, JsonClientException {
+    public String ver(RpcContext... jsonRpcContext) throws IOException, JsonClientException {
         List<Object> args = new ArrayList<Object>();
         TypeReference<List<String>> retType = new TypeReference<List<String>>() {};
-        List<String> res = caller.jsonrpcCall("UserProfile.ver", args, retType, true, false);
+        List<String> res = caller.jsonrpcCall("UserProfile.ver", args, retType, true, false, jsonRpcContext, this.serviceVersion);
         return res.get(0);
     }
 
@@ -199,11 +223,11 @@ public class UserProfileClient {
      * @throws IOException if an IO exception occurs
      * @throws JsonClientException if a JSON RPC exception occurs
      */
-    public List<User> filterUsers(FilterParams p) throws IOException, JsonClientException {
+    public List<User> filterUsers(FilterParams p, RpcContext... jsonRpcContext) throws IOException, JsonClientException {
         List<Object> args = new ArrayList<Object>();
         args.add(p);
         TypeReference<List<List<User>>> retType = new TypeReference<List<List<User>>>() {};
-        List<List<User>> res = caller.jsonrpcCall("UserProfile.filter_users", args, retType, true, false);
+        List<List<User>> res = caller.jsonrpcCall("UserProfile.filter_users", args, retType, true, false, jsonRpcContext, this.serviceVersion);
         return res.get(0);
     }
 
@@ -219,11 +243,11 @@ public class UserProfileClient {
      * @throws IOException if an IO exception occurs
      * @throws JsonClientException if a JSON RPC exception occurs
      */
-    public List<UserProfile> getUserProfile(List<String> usernames) throws IOException, JsonClientException {
+    public List<UserProfile> getUserProfile(List<String> usernames, RpcContext... jsonRpcContext) throws IOException, JsonClientException {
         List<Object> args = new ArrayList<Object>();
         args.add(usernames);
         TypeReference<List<List<UserProfile>>> retType = new TypeReference<List<List<UserProfile>>>() {};
-        List<List<UserProfile>> res = caller.jsonrpcCall("UserProfile.get_user_profile", args, retType, true, false);
+        List<List<UserProfile>> res = caller.jsonrpcCall("UserProfile.get_user_profile", args, retType, true, false, jsonRpcContext, this.serviceVersion);
         return res.get(0);
     }
 
@@ -240,11 +264,11 @@ public class UserProfileClient {
      * @throws IOException if an IO exception occurs
      * @throws JsonClientException if a JSON RPC exception occurs
      */
-    public void setUserProfile(SetUserProfileParams p) throws IOException, JsonClientException {
+    public void setUserProfile(SetUserProfileParams p, RpcContext... jsonRpcContext) throws IOException, JsonClientException {
         List<Object> args = new ArrayList<Object>();
         args.add(p);
         TypeReference<Object> retType = new TypeReference<Object>() {};
-        caller.jsonrpcCall("UserProfile.set_user_profile", args, retType, false, true);
+        caller.jsonrpcCall("UserProfile.set_user_profile", args, retType, false, true, jsonRpcContext, this.serviceVersion);
     }
 
     /**
@@ -261,11 +285,11 @@ public class UserProfileClient {
      * @throws IOException if an IO exception occurs
      * @throws JsonClientException if a JSON RPC exception occurs
      */
-    public void updateUserProfile(SetUserProfileParams p) throws IOException, JsonClientException {
+    public void updateUserProfile(SetUserProfileParams p, RpcContext... jsonRpcContext) throws IOException, JsonClientException {
         List<Object> args = new ArrayList<Object>();
         args.add(p);
         TypeReference<Object> retType = new TypeReference<Object>() {};
-        caller.jsonrpcCall("UserProfile.update_user_profile", args, retType, false, true);
+        caller.jsonrpcCall("UserProfile.update_user_profile", args, retType, false, true, jsonRpcContext, this.serviceVersion);
     }
 
     /**
@@ -277,11 +301,18 @@ public class UserProfileClient {
      * @throws IOException if an IO exception occurs
      * @throws JsonClientException if a JSON RPC exception occurs
      */
-    public Map<String,GlobusUser> lookupGlobusUser(List<String> usernames) throws IOException, JsonClientException {
+    public Map<String,GlobusUser> lookupGlobusUser(List<String> usernames, RpcContext... jsonRpcContext) throws IOException, JsonClientException {
         List<Object> args = new ArrayList<Object>();
         args.add(usernames);
         TypeReference<List<Map<String,GlobusUser>>> retType = new TypeReference<List<Map<String,GlobusUser>>>() {};
-        List<Map<String,GlobusUser>> res = caller.jsonrpcCall("UserProfile.lookup_globus_user", args, retType, true, true);
+        List<Map<String,GlobusUser>> res = caller.jsonrpcCall("UserProfile.lookup_globus_user", args, retType, true, true, jsonRpcContext, this.serviceVersion);
+        return res.get(0);
+    }
+
+    public Map<String, Object> status(RpcContext... jsonRpcContext) throws IOException, JsonClientException {
+        List<Object> args = new ArrayList<Object>();
+        TypeReference<List<Map<String, Object>>> retType = new TypeReference<List<Map<String, Object>>>() {};
+        List<Map<String, Object>> res = caller.jsonrpcCall("UserProfile.status", args, retType, true, false, jsonRpcContext, this.serviceVersion);
         return res.get(0);
     }
 }

@@ -1,22 +1,23 @@
 package us.kbase.userprofile;
 
-import java.util.HashMap;
+import java.io.File;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-
+import us.kbase.auth.AuthToken;
 import us.kbase.common.service.JsonServerMethod;
 import us.kbase.common.service.JsonServerServlet;
-
-
-
-
+import us.kbase.common.service.JsonServerSyslog;
+import us.kbase.common.service.RpcContext;
 
 //BEGIN_HEADER
 import java.util.ArrayList;
+import java.util.HashMap;
 
-import us.kbase.auth.AuthService;
-import us.kbase.auth.AuthToken;
+import java.net.URL;
+
+import us.kbase.auth.ConfigurableAuthService;
+import us.kbase.auth.AuthConfig;
 import us.kbase.auth.UserDetail;
 
 import org.ini4j.Ini;
@@ -31,20 +32,26 @@ import java.io.File;
  */
 public class UserProfileServer extends JsonServerServlet {
     private static final long serialVersionUID = 1L;
+    private static final String version = "0.2.0";
+    private static final String gitUrl = "git@github.com:kbase/user_profile";
+    private static final String gitCommitHash = "28d01844f1e20012708bf6ce4c66db4ac1f5778f";
 
     //BEGIN_CLASS_HEADER
-    public static final String VERSION = "0.1.0";
+    public static final String VERSION = "0.2.0";
     
     public static final String SYS_PROP_KB_DEPLOYMENT_CONFIG = "KB_DEPLOYMENT_CONFIG";
     public static final String SERVICE_DEPLOYMENT_NAME = "UserProfile";
     
-    public static final String   CFG_MONGO_HOST = "mongodb-host";
-    public static final String     CFG_MONGO_DB = "mongodb-database";
-    public static final String   CFG_MONGO_USER = "mongodb-user";
-    public static final String   CFG_MONGO_PSWD = "mongodb-pwd";
-    public static final String  CFG_MONGO_RETRY = "mongodb-retry";
-    public static final String        CFG_ADMIN = "admin";
-    
+    public static final String            CFG_MONGO_HOST = "mongodb-host";
+    public static final String              CFG_MONGO_DB = "mongodb-database";
+    public static final String            CFG_MONGO_USER = "mongodb-user";
+    public static final String            CFG_MONGO_PSWD = "mongodb-pwd";
+    public static final String           CFG_MONGO_RETRY = "mongodb-retry";
+    public static final String                 CFG_ADMIN = "admin";
+    public static final String CFG_PROP_AUTH_SERVICE_URL = "auth-service-url";
+    public static final String       CFG_PROP_GLOBUS_URL = "globus-url";
+    public static final String    CFG_PROP_AUTH_INSECURE = "auth-service-url-allow-insecure";
+
     private static Throwable configError = null;
     private static Map<String, String> config = null;
 
@@ -80,19 +87,41 @@ public class UserProfileServer extends JsonServerServlet {
     }
 
 	private final MongoController db;
-	
-	
+    private final URL authServiceUrl;
+    private final URL globusUrl;
+    private final boolean authAllowInsecure;
+
     //END_CLASS_HEADER
 
     public UserProfileServer() throws Exception {
         super("UserProfile");
         //BEGIN_CONSTRUCTOR
-        
+
+        String authServiceUrlString = config().get(CFG_PROP_AUTH_SERVICE_URL);
+        if (authServiceUrlString == null) {
+            throw new IllegalStateException("Parameter " + CFG_PROP_AUTH_SERVICE_URL + " is not defined in configuration");
+        }
+        System.out.println(UserProfileServer.class.getName() + ": " + CFG_PROP_AUTH_SERVICE_URL +" = " + authServiceUrlString);
+        this.authServiceUrl = new URL(authServiceUrlString);
+
+        String globusUrlString = config().get(CFG_PROP_GLOBUS_URL);
+        if (globusUrlString == null) {
+            throw new IllegalStateException("Parameter " + CFG_PROP_GLOBUS_URL + " is not defined in configuration");
+        }
+        System.out.println(UserProfileServer.class.getName() + ": " + CFG_PROP_GLOBUS_URL +" = " + globusUrlString);
+        this.globusUrl = new URL(globusUrlString);
+
         System.out.println(UserProfileServer.class.getName() + ": " + CFG_MONGO_HOST +" = " + getConfig(CFG_MONGO_HOST));
         System.out.println(UserProfileServer.class.getName() + ": " + CFG_MONGO_DB +" = " + getConfig(CFG_MONGO_DB));
         System.out.println(UserProfileServer.class.getName() + ": " + CFG_MONGO_RETRY +" = " + getConfig(CFG_MONGO_RETRY));
         System.out.println(UserProfileServer.class.getName() + ": " + CFG_ADMIN +" = " + getConfig(CFG_ADMIN));
         
+        String authAllowInsecureString = config().get(CFG_PROP_AUTH_INSECURE);
+        System.out.print(UserProfileServer.class.getName() + ": " + CFG_PROP_AUTH_INSECURE +" = " + 
+                                (authAllowInsecureString == null ? "<not-set>" : authAllowInsecureString));
+        this.authAllowInsecure = "true".equals(authAllowInsecureString);
+        System.out.println(" [flag interpreted to be:"+this.authAllowInsecure + "]");
+
         String mongoUser = ""; boolean useMongoAuth = true;
         try{
         	mongoUser = getConfig(CFG_MONGO_USER);
@@ -114,6 +143,7 @@ public class UserProfileServer extends JsonServerServlet {
         		getConfig(CFG_MONGO_DB),
         		Integer.parseInt(getConfig(CFG_MONGO_RETRY)));
         }
+
         //END_CONSTRUCTOR
     }
 
@@ -123,8 +153,8 @@ public class UserProfileServer extends JsonServerServlet {
      * </pre>
      * @return   instance of String
      */
-    @JsonServerMethod(rpc = "UserProfile.ver")
-    public String ver() throws Exception {
+    @JsonServerMethod(rpc = "UserProfile.ver", async=true)
+    public String ver(RpcContext jsonRpcContext) throws Exception {
         String returnVal = null;
         //BEGIN ver
         returnVal = VERSION;
@@ -142,8 +172,8 @@ public class UserProfileServer extends JsonServerServlet {
      * @param   p   instance of type {@link us.kbase.userprofile.FilterParams FilterParams}
      * @return   parameter "users" of list of type {@link us.kbase.userprofile.User User}
      */
-    @JsonServerMethod(rpc = "UserProfile.filter_users")
-    public List<User> filterUsers(FilterParams p) throws Exception {
+    @JsonServerMethod(rpc = "UserProfile.filter_users", async=true)
+    public List<User> filterUsers(FilterParams p, RpcContext jsonRpcContext) throws Exception {
         List<User> returnVal = null;
         //BEGIN filter_users
         returnVal = db.filterUsers(p.getFilter());
@@ -161,8 +191,8 @@ public class UserProfileServer extends JsonServerServlet {
      * @param   usernames   instance of list of original type "username"
      * @return   parameter "profiles" of list of type {@link us.kbase.userprofile.UserProfile UserProfile}
      */
-    @JsonServerMethod(rpc = "UserProfile.get_user_profile")
-    public List<UserProfile> getUserProfile(List<String> usernames) throws Exception {
+    @JsonServerMethod(rpc = "UserProfile.get_user_profile", async=true)
+    public List<UserProfile> getUserProfile(List<String> usernames, RpcContext jsonRpcContext) throws Exception {
         List<UserProfile> returnVal = null;
         //BEGIN get_user_profile
         returnVal = new ArrayList<UserProfile>();
@@ -185,8 +215,8 @@ public class UserProfileServer extends JsonServerServlet {
      * </pre>
      * @param   p   instance of type {@link us.kbase.userprofile.SetUserProfileParams SetUserProfileParams}
      */
-    @JsonServerMethod(rpc = "UserProfile.set_user_profile")
-    public void setUserProfile(SetUserProfileParams p, AuthToken authPart) throws Exception {
+    @JsonServerMethod(rpc = "UserProfile.set_user_profile", async=true)
+    public void setUserProfile(SetUserProfileParams p, AuthToken authPart, RpcContext jsonRpcContext) throws Exception {
         //BEGIN set_user_profile
     	if(p.getProfile()==null)
     		throw new Exception("'profile' field must be set.");
@@ -217,8 +247,8 @@ public class UserProfileServer extends JsonServerServlet {
      * </pre>
      * @param   p   instance of type {@link us.kbase.userprofile.SetUserProfileParams SetUserProfileParams}
      */
-    @JsonServerMethod(rpc = "UserProfile.update_user_profile")
-    public void updateUserProfile(SetUserProfileParams p, AuthToken authPart) throws Exception {
+    @JsonServerMethod(rpc = "UserProfile.update_user_profile", async=true)
+    public void updateUserProfile(SetUserProfileParams p, AuthToken authPart, RpcContext jsonRpcContext) throws Exception {
         //BEGIN update_user_profile
     	if(p.getProfile()==null)
     		throw new Exception("'profile' field must be set.");
@@ -243,11 +273,19 @@ public class UserProfileServer extends JsonServerServlet {
      * @param   usernames   instance of list of original type "username"
      * @return   parameter "users" of mapping from original type "username" to type {@link us.kbase.userprofile.GlobusUser GlobusUser}
      */
-    @JsonServerMethod(rpc = "UserProfile.lookup_globus_user")
-    public Map<String,GlobusUser> lookupGlobusUser(List<String> usernames, AuthToken authPart) throws Exception {
+    @JsonServerMethod(rpc = "UserProfile.lookup_globus_user", async=true)
+    public Map<String,GlobusUser> lookupGlobusUser(List<String> usernames, AuthToken authPart, RpcContext jsonRpcContext) throws Exception {
         Map<String,GlobusUser> returnVal = null;
         //BEGIN lookup_globus_user
-    	Map<String, UserDetail> data = AuthService.fetchUserDetail(usernames, authPart);
+
+        ConfigurableAuthService authService = new ConfigurableAuthService(
+                                                        new AuthConfig()
+                                                            .withKBaseAuthServerURL(authServiceUrl)
+                                                            .withGlobusAuthURL(globusUrl)
+                                                            .withAllowInsecureURLs(authAllowInsecure)
+                                                    );
+
+    	Map<String, UserDetail> data = authService.fetchUserDetail(usernames, authPart);
     	returnVal = new HashMap<String, GlobusUser>(data.size());
 
     	for (UserDetail ud : data.values()) {
@@ -261,12 +299,31 @@ public class UserProfileServer extends JsonServerServlet {
         //END lookup_globus_user
         return returnVal;
     }
+    @JsonServerMethod(rpc = "UserProfile.status")
+    public Map<String, Object> status() {
+        Map<String, Object> returnVal = null;
+        //BEGIN_STATUS
+        returnVal = new LinkedHashMap<String, Object>();
+        returnVal.put("state", "OK");
+        returnVal.put("message", "");
+        returnVal.put("version", version);
+        returnVal.put("git_url", gitUrl);
+        returnVal.put("git_commit_hash", gitCommitHash);
+        //END_STATUS
+        return returnVal;
+    }
 
     public static void main(String[] args) throws Exception {
-        if (args.length != 1) {
+        if (args.length == 1) {
+            new UserProfileServer().startupServer(Integer.parseInt(args[0]));
+        } else if (args.length == 3) {
+            JsonServerSyslog.setStaticUseSyslog(false);
+            JsonServerSyslog.setStaticMlogFile(args[1] + ".log");
+            new UserProfileServer().processRpcCall(new File(args[0]), new File(args[1]), args[2]);
+        } else {
             System.out.println("Usage: <program> <server_port>");
+            System.out.println("   or: <program> <context_json_file> <output_json_file> <token>");
             return;
         }
-        new UserProfileServer().startupServer(Integer.parseInt(args[0]));
     }
 }
