@@ -32,7 +32,7 @@ import java.io.File;
  */
 public class UserProfileServer extends JsonServerServlet {
     private static final long serialVersionUID = 1L;
-    private static final String version = "0.0.1";
+    private static final String version = "0.2.0";
     private static final String gitUrl = "git@github.com:kbase/user_profile";
     private static final String gitCommitHash = "28d01844f1e20012708bf6ce4c66db4ac1f5778f";
 
