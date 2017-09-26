@@ -137,7 +137,7 @@ $return is a string
 
 =cut
 
-sub ver
+ sub ver
 {
     my($self, @args) = @_;
 
@@ -149,9 +149,10 @@ sub ver
 							       "Invalid argument count for function ver (received $n, expecting 0)");
     }
 
-    my $result = $self->{client}->call($self->{url}, $self->{headers}, {
-	method => "UserProfile.ver",
-	params => \@args,
+    my $url = $self->{url};
+    my $result = $self->{client}->call($url, $self->{headers}, {
+	    method => "UserProfile.ver",
+	    params => \@args,
     });
     if ($result) {
 	if ($result->is_error) {
@@ -170,7 +171,7 @@ sub ver
 				       );
     }
 }
-
+ 
 
 
 =head2 filter_users
@@ -184,13 +185,13 @@ sub ver
 =begin html
 
 <pre>
-$p is a UserProfile.FilterParams
-$users is a reference to a list where each element is a UserProfile.User
+$p is an UserProfile.FilterParams
+$users is a reference to a list where each element is an UserProfile.User
 FilterParams is a reference to a hash where the following keys are defined:
 	filter has a value which is a string
 User is a reference to a hash where the following keys are defined:
-	username has a value which is a UserProfile.username
-	realname has a value which is a UserProfile.realname
+	username has a value which is an UserProfile.username
+	realname has a value which is an UserProfile.realname
 	thumbnail has a value which is a string
 username is a string
 realname is a string
@@ -201,13 +202,13 @@ realname is a string
 
 =begin text
 
-$p is a UserProfile.FilterParams
-$users is a reference to a list where each element is a UserProfile.User
+$p is an UserProfile.FilterParams
+$users is a reference to a list where each element is an UserProfile.User
 FilterParams is a reference to a hash where the following keys are defined:
 	filter has a value which is a string
 User is a reference to a hash where the following keys are defined:
-	username has a value which is a UserProfile.username
-	realname has a value which is a UserProfile.realname
+	username has a value which is an UserProfile.username
+	realname has a value which is an UserProfile.realname
 	thumbnail has a value which is a string
 username is a string
 realname is a string
@@ -225,7 +226,7 @@ match substrings in usernames and realnames.
 
 =cut
 
-sub filter_users
+ sub filter_users
 {
     my($self, @args) = @_;
 
@@ -248,9 +249,10 @@ sub filter_users
 	}
     }
 
-    my $result = $self->{client}->call($self->{url}, $self->{headers}, {
-	method => "UserProfile.filter_users",
-	params => \@args,
+    my $url = $self->{url};
+    my $result = $self->{client}->call($url, $self->{headers}, {
+	    method => "UserProfile.filter_users",
+	    params => \@args,
     });
     if ($result) {
 	if ($result->is_error) {
@@ -269,7 +271,7 @@ sub filter_users
 				       );
     }
 }
-
+ 
 
 
 =head2 get_user_profile
@@ -283,15 +285,15 @@ sub filter_users
 =begin html
 
 <pre>
-$usernames is a reference to a list where each element is a UserProfile.username
-$profiles is a reference to a list where each element is a UserProfile.UserProfile
+$usernames is a reference to a list where each element is an UserProfile.username
+$profiles is a reference to a list where each element is an UserProfile.UserProfile
 username is a string
 UserProfile is a reference to a hash where the following keys are defined:
-	user has a value which is a UserProfile.User
+	user has a value which is an UserProfile.User
 	profile has a value which is an UnspecifiedObject, which can hold any non-null object
 User is a reference to a hash where the following keys are defined:
-	username has a value which is a UserProfile.username
-	realname has a value which is a UserProfile.realname
+	username has a value which is an UserProfile.username
+	realname has a value which is an UserProfile.realname
 	thumbnail has a value which is a string
 realname is a string
 
@@ -301,15 +303,15 @@ realname is a string
 
 =begin text
 
-$usernames is a reference to a list where each element is a UserProfile.username
-$profiles is a reference to a list where each element is a UserProfile.UserProfile
+$usernames is a reference to a list where each element is an UserProfile.username
+$profiles is a reference to a list where each element is an UserProfile.UserProfile
 username is a string
 UserProfile is a reference to a hash where the following keys are defined:
-	user has a value which is a UserProfile.User
+	user has a value which is an UserProfile.User
 	profile has a value which is an UnspecifiedObject, which can hold any non-null object
 User is a reference to a hash where the following keys are defined:
-	username has a value which is a UserProfile.username
-	realname has a value which is a UserProfile.realname
+	username has a value which is an UserProfile.username
+	realname has a value which is an UserProfile.realname
 	thumbnail has a value which is a string
 realname is a string
 
@@ -326,7 +328,7 @@ be null.
 
 =cut
 
-sub get_user_profile
+ sub get_user_profile
 {
     my($self, @args) = @_;
 
@@ -349,9 +351,10 @@ sub get_user_profile
 	}
     }
 
-    my $result = $self->{client}->call($self->{url}, $self->{headers}, {
-	method => "UserProfile.get_user_profile",
-	params => \@args,
+    my $url = $self->{url};
+    my $result = $self->{client}->call($url, $self->{headers}, {
+	    method => "UserProfile.get_user_profile",
+	    params => \@args,
     });
     if ($result) {
 	if ($result->is_error) {
@@ -370,7 +373,7 @@ sub get_user_profile
 				       );
     }
 }
-
+ 
 
 
 =head2 set_user_profile
@@ -384,15 +387,15 @@ sub get_user_profile
 =begin html
 
 <pre>
-$p is a UserProfile.SetUserProfileParams
+$p is an UserProfile.SetUserProfileParams
 SetUserProfileParams is a reference to a hash where the following keys are defined:
-	profile has a value which is a UserProfile.UserProfile
+	profile has a value which is an UserProfile.UserProfile
 UserProfile is a reference to a hash where the following keys are defined:
-	user has a value which is a UserProfile.User
+	user has a value which is an UserProfile.User
 	profile has a value which is an UnspecifiedObject, which can hold any non-null object
 User is a reference to a hash where the following keys are defined:
-	username has a value which is a UserProfile.username
-	realname has a value which is a UserProfile.realname
+	username has a value which is an UserProfile.username
+	realname has a value which is an UserProfile.realname
 	thumbnail has a value which is a string
 username is a string
 realname is a string
@@ -403,15 +406,15 @@ realname is a string
 
 =begin text
 
-$p is a UserProfile.SetUserProfileParams
+$p is an UserProfile.SetUserProfileParams
 SetUserProfileParams is a reference to a hash where the following keys are defined:
-	profile has a value which is a UserProfile.UserProfile
+	profile has a value which is an UserProfile.UserProfile
 UserProfile is a reference to a hash where the following keys are defined:
-	user has a value which is a UserProfile.User
+	user has a value which is an UserProfile.User
 	profile has a value which is an UnspecifiedObject, which can hold any non-null object
 User is a reference to a hash where the following keys are defined:
-	username has a value which is a UserProfile.username
-	realname has a value which is a UserProfile.realname
+	username has a value which is an UserProfile.username
+	realname has a value which is an UserProfile.realname
 	thumbnail has a value which is a string
 username is a string
 realname is a string
@@ -432,7 +435,7 @@ then the entire user profile will be replaced with the new profile.
 
 =cut
 
-sub set_user_profile
+ sub set_user_profile
 {
     my($self, @args) = @_;
 
@@ -455,9 +458,10 @@ sub set_user_profile
 	}
     }
 
-    my $result = $self->{client}->call($self->{url}, $self->{headers}, {
-	method => "UserProfile.set_user_profile",
-	params => \@args,
+    my $url = $self->{url};
+    my $result = $self->{client}->call($url, $self->{headers}, {
+	    method => "UserProfile.set_user_profile",
+	    params => \@args,
     });
     if ($result) {
 	if ($result->is_error) {
@@ -476,7 +480,7 @@ sub set_user_profile
 				       );
     }
 }
-
+ 
 
 
 =head2 update_user_profile
@@ -490,15 +494,15 @@ sub set_user_profile
 =begin html
 
 <pre>
-$p is a UserProfile.SetUserProfileParams
+$p is an UserProfile.SetUserProfileParams
 SetUserProfileParams is a reference to a hash where the following keys are defined:
-	profile has a value which is a UserProfile.UserProfile
+	profile has a value which is an UserProfile.UserProfile
 UserProfile is a reference to a hash where the following keys are defined:
-	user has a value which is a UserProfile.User
+	user has a value which is an UserProfile.User
 	profile has a value which is an UnspecifiedObject, which can hold any non-null object
 User is a reference to a hash where the following keys are defined:
-	username has a value which is a UserProfile.username
-	realname has a value which is a UserProfile.realname
+	username has a value which is an UserProfile.username
+	realname has a value which is an UserProfile.realname
 	thumbnail has a value which is a string
 username is a string
 realname is a string
@@ -509,15 +513,15 @@ realname is a string
 
 =begin text
 
-$p is a UserProfile.SetUserProfileParams
+$p is an UserProfile.SetUserProfileParams
 SetUserProfileParams is a reference to a hash where the following keys are defined:
-	profile has a value which is a UserProfile.UserProfile
+	profile has a value which is an UserProfile.UserProfile
 UserProfile is a reference to a hash where the following keys are defined:
-	user has a value which is a UserProfile.User
+	user has a value which is an UserProfile.User
 	profile has a value which is an UnspecifiedObject, which can hold any non-null object
 User is a reference to a hash where the following keys are defined:
-	username has a value which is a UserProfile.username
-	realname has a value which is a UserProfile.realname
+	username has a value which is an UserProfile.username
+	realname has a value which is an UserProfile.realname
 	thumbnail has a value which is a string
 username is a string
 realname is a string
@@ -540,7 +544,7 @@ todo: add some way to remove fields.  Fields in profile can only be modified or 
 
 =cut
 
-sub update_user_profile
+ sub update_user_profile
 {
     my($self, @args) = @_;
 
@@ -563,9 +567,10 @@ sub update_user_profile
 	}
     }
 
-    my $result = $self->{client}->call($self->{url}, $self->{headers}, {
-	method => "UserProfile.update_user_profile",
-	params => \@args,
+    my $url = $self->{url};
+    my $result = $self->{client}->call($url, $self->{headers}, {
+	    method => "UserProfile.update_user_profile",
+	    params => \@args,
     });
     if ($result) {
 	if ($result->is_error) {
@@ -584,7 +589,7 @@ sub update_user_profile
 				       );
     }
 }
-
+ 
 
 
 =head2 lookup_globus_user
@@ -598,8 +603,8 @@ sub update_user_profile
 =begin html
 
 <pre>
-$usernames is a reference to a list where each element is a UserProfile.username
-$users is a reference to a hash where the key is a UserProfile.username and the value is a UserProfile.GlobusUser
+$usernames is a reference to a list where each element is an UserProfile.username
+$users is a reference to a hash where the key is an UserProfile.username and the value is an UserProfile.GlobusUser
 username is a string
 GlobusUser is a reference to a hash where the following keys are defined:
 	email has a value which is a string
@@ -612,8 +617,8 @@ GlobusUser is a reference to a hash where the following keys are defined:
 
 =begin text
 
-$usernames is a reference to a list where each element is a UserProfile.username
-$users is a reference to a hash where the key is a UserProfile.username and the value is a UserProfile.GlobusUser
+$usernames is a reference to a list where each element is an UserProfile.username
+$users is a reference to a hash where the key is an UserProfile.username and the value is an UserProfile.GlobusUser
 username is a string
 GlobusUser is a reference to a hash where the following keys are defined:
 	email has a value which is a string
@@ -631,7 +636,7 @@ GlobusUser is a reference to a hash where the following keys are defined:
 
 =cut
 
-sub lookup_globus_user
+ sub lookup_globus_user
 {
     my($self, @args) = @_;
 
@@ -654,9 +659,10 @@ sub lookup_globus_user
 	}
     }
 
-    my $result = $self->{client}->call($self->{url}, $self->{headers}, {
-	method => "UserProfile.lookup_globus_user",
-	params => \@args,
+    my $url = $self->{url};
+    my $result = $self->{client}->call($url, $self->{headers}, {
+	    method => "UserProfile.lookup_globus_user",
+	    params => \@args,
     });
     if ($result) {
 	if ($result->is_error) {
@@ -675,8 +681,38 @@ sub lookup_globus_user
 				       );
     }
 }
-
-
+ 
+  
+sub status
+{
+    my($self, @args) = @_;
+    if ((my $n = @args) != 0) {
+        Bio::KBase::Exceptions::ArgumentValidationError->throw(error =>
+                                   "Invalid argument count for function status (received $n, expecting 0)");
+    }
+    my $url = $self->{url};
+    my $result = $self->{client}->call($url, $self->{headers}, {
+        method => "UserProfile.status",
+        params => \@args,
+    });
+    if ($result) {
+        if ($result->is_error) {
+            Bio::KBase::Exceptions::JSONRPC->throw(error => $result->error_message,
+                           code => $result->content->{error}->{code},
+                           method_name => 'status',
+                           data => $result->content->{error}->{error} # JSON::RPC::ReturnObject only supports JSONRPC 1.1 or 1.O
+                          );
+        } else {
+            return wantarray ? @{$result->result} : $result->result->[0];
+        }
+    } else {
+        Bio::KBase::Exceptions::HTTP->throw(error => "Error invoking method status",
+                        status_line => $self->{client}->status_line,
+                        method_name => 'status',
+                       );
+    }
+}
+   
 
 sub version {
     my ($self) = @_;
@@ -830,8 +866,8 @@ a string
 
 <pre>
 a reference to a hash where the following keys are defined:
-username has a value which is a UserProfile.username
-realname has a value which is a UserProfile.realname
+username has a value which is an UserProfile.username
+realname has a value which is an UserProfile.realname
 thumbnail has a value which is a string
 
 </pre>
@@ -841,8 +877,8 @@ thumbnail has a value which is a string
 =begin text
 
 a reference to a hash where the following keys are defined:
-username has a value which is a UserProfile.username
-realname has a value which is a UserProfile.realname
+username has a value which is an UserProfile.username
+realname has a value which is an UserProfile.realname
 thumbnail has a value which is a string
 
 
@@ -864,7 +900,7 @@ thumbnail has a value which is a string
 
 <pre>
 a reference to a hash where the following keys are defined:
-user has a value which is a UserProfile.User
+user has a value which is an UserProfile.User
 profile has a value which is an UnspecifiedObject, which can hold any non-null object
 
 </pre>
@@ -874,7 +910,7 @@ profile has a value which is an UnspecifiedObject, which can hold any non-null o
 =begin text
 
 a reference to a hash where the following keys are defined:
-user has a value which is a UserProfile.User
+user has a value which is an UserProfile.User
 profile has a value which is an UnspecifiedObject, which can hold any non-null object
 
 
@@ -926,7 +962,7 @@ filter has a value which is a string
 
 <pre>
 a reference to a hash where the following keys are defined:
-profile has a value which is a UserProfile.UserProfile
+profile has a value which is an UserProfile.UserProfile
 
 </pre>
 
@@ -935,7 +971,7 @@ profile has a value which is a UserProfile.UserProfile
 =begin text
 
 a reference to a hash where the following keys are defined:
-profile has a value which is a UserProfile.UserProfile
+profile has a value which is an UserProfile.UserProfile
 
 
 =end text

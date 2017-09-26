@@ -33,7 +33,7 @@
   <!-- Properties in ant are immutable, so the following assignment will only take place if jardir was not set above. -->
   <property name="jardir" location="${env.JENKINS_JARS_MODULE_PATH}/lib/jars"/>
 
-  <condition property="commonjar" value="kbase/common/kbase-common-0.0.7.jar">
+  <condition property="commonjar" value="kbase/common/kbase-common-0.0.22.jar">
     <or>
       <equals arg1="${env.JENKINS_JAVA_COMMON_JARFILE}" arg2=""/>
       <not>
@@ -59,7 +59,7 @@
 
   <fileset dir="${jardir}" id="clientserverlib">
     <include name="junit/junit-4.9.jar"/>
-    <include name="kbase/auth/kbase-auth-1398468950-3552bb2.jar"/>
+    <include name="kbase/auth/kbase-auth-0.4.4.jar"/>
     <include name="jackson/jackson-annotations-2.2.3.jar"/>
     <include name="jackson/jackson-core-2.2.3.jar"/>
     <include name="jackson/jackson-databind-2.2.3.jar"/>
@@ -73,7 +73,7 @@
     <include name="apache_commons/commons-configuration-1.10.jar"/>
     <include name="apache_commons/commons-io-2.4.jar"/>
     <include name="google/guava-14.0.1.jar"/>
-    <include name="mongo/mongo-java-driver-2.11.2.jar"/>
+    <include name="mongo/mongo-java-driver-2.13.3.jar"/>
     <include name="jongo/jongo-0.5-early-20130912-1506.jar"/>
     <include name="bson4jackson/bson4jackson-2.2.0-2.2.0.jar"/>
     <include name="slf4j/slf4j-api-1.7.7.jar"/>
@@ -208,9 +208,8 @@
     <fail unless="test.mongodb-host" message="test.mongodb-host not set"/>
     <fail unless="test.mongodb-database" message="test.mongodb-database not set"/>
     <fail unless="test.admin" message="test.admin not set"/>
-    <fail unless="test.admin-pwd" message="test.admin-pwd not set"/>
-    <fail unless="test.usr1" message="test.usr1 not set"/>
-    <fail unless="test.usr1-pwd" message="test.usr1-pwd not set"/>
+    <fail unless="test.auth-service-url" message="test.auth-service-url not set"/>
+    <fail unless="test.globus-url" message="test.globus-url not set"/>
     <echo message="starting ${package} tests"/>
     <junit fork="yes" maxmemory="3G" failureproperty="test.failed">
       <classpath refid="test.classpath"/>
@@ -220,9 +219,14 @@
       <sysproperty key="test.mongodb-host" value="${test.mongodb-host}"/>
       <sysproperty key="test.mongodb-database" value="${test.mongodb-database}"/>
       <sysproperty key="test.admin" value="${test.admin}"/>
+      <sysproperty key="test.admin-token" value="${test.admin-token}"/>
       <sysproperty key="test.admin-pwd" value="${test.admin-pwd}"/>
       <sysproperty key="test.usr1" value="${test.usr1}"/>
       <sysproperty key="test.usr1-pwd" value="${test.usr1-pwd}"/>
+      <sysproperty key="test.usr1-token" value="${test.usr1-token}"/>
+      <sysproperty key="test.auth-service-url" value="${test.auth-service-url}"/>
+      <sysproperty key="test.globus-url" value="${test.globus-url}"/>
+      <sysproperty key="test.auth-service-url-allow-insecure" value="${test.auth-service-url-allow-insecure}"/>
       <test name="us.kbase.userprofile.test.FullServerTest"/>
     </junit>
     <fail message="Test failure detected, check test results." if="test.failed" />
