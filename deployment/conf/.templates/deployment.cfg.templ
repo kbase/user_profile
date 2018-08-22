@@ -13,33 +13,36 @@
 
 [UserProfile]
 # host where mongo lives, e.g. localhost:27017
-mongodb-host = localhost
+mongodb-host = {{ default .Env.mongodb_host "ci-mongo" }}
 # name of the workspace mongo database
-mongodb-database = user_profile_db
+mongodb-database = {{ default .Env.mongodb_database "user_profile_db" }}
 # the user name for an account with readWrite access to the database
-#mongodb-user = add username here
+mongodb-user = {{ default .Env.mongodb_user "upserv" }}
 # password for the account
-#mongodb-pwd = add password here
+#mongodb-pwd = {{ default .Env.mongodb_pwd "" }}
 
 # MongoDB reconnect retry count. The service will try to reconnect 1/s until
 # this limit has been reached.
 mongodb-retry = 0
 
 # the user name for an administrator
-admin = kbuserprofileadmin
+admin = {{ default .Env.admin "kbuserprofileadmin" }}
 
 # port for the service.
-port = 7126
+port = {{ default .Env.port "7126" }}
+
+# Base directory
+basedir={{ default .Env.basedir "user_profile" }}
 
 # server thread count - this determines the number of requests that can be
 # processed simultaneously.
-server-threads = 20
+server-threads = {{ default .Env.server_threads "20" }}
 
 #Minimum memory size in MB.
-min-memory = 1000
+min-memory = {{ default .Env.min_memory "1000" }}
 
 #Maximum memory size in MB.
-max-memory = 2000
+max-memory = {{ default .Env.max_memory "2000" }}
 
-auth-service-url = https://kbase.us/services/authorization
-globus-url =  https://nexus.api.globusonline.org
+auth-service-url = {{ default .Env.auth_service_url "https://kbase.us/services/authorization" }}
+globus-url =  {{ default .Env.globus_url "https://nexus.api.globusonline.org" }}
