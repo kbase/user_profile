@@ -1,0 +1,17 @@
+dist: trusty
+sudo: required
+language: java
+jdk:
+  - openjdk8
+before_install:
+  - sudo apt-get -qq update
+  - sudo apt-get install -y ant-optional
+  - sudo pip install sphinx
+env:
+  - secure: "O3Uv6C+Y7gywdNuLN73KsoIhZ+XV+lCN29KnImSCGHnn/Oy6cZnT6CKQrEpaCkXBnQ6A8UijO06MQXcMAy2yj1SIXud43Y0wjcUDvkUFLijAVcOdLSsIww6E062kLBrkW98rEg9iuVmb6z59G7Wbz9eAeaq4IMxR7izGAIPvi+s="
+  - secure: "Es4pqoqmVtVrNq2SreoJ20pLV6PeDDE4WddG5KeFB3aleu5C8wHMvD8GMKjNCOK6zsLAQYR5AeIYo0RjOEGsE83gjqf9StP/5vfn/kQa4H7867NohMjrMHdKtLSqHKky0DYK36x9e6LklMHVTxsWuBTgwJm3e1lD9ktKIC9fudg="
+script:
+  - docker pull kbase/kb_jre
+  - make docker_image
+after_success:
+  - IMAGE_NAME=kbase/user_profile ./build/push2dockerhub.sh

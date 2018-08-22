@@ -147,6 +147,9 @@ deploy-upstart:
 	echo "pre-start exec chown -R $(SERVICE_USER) $(TARGET)/services/$(SERVICE)" >> /etc/init/$(SERVICE).conf 
 	echo "exec su kbase -c '$(TARGET)/services/$(SERVICE)/start_service'" >> /etc/init/$(SERVICE).conf 
 
+docker_image:
+	build/build_docker_image.sh
+
 undeploy:
 	-rm -rf $(SERVICE_DIR)
 	-rm -rfv $(TARGET)/lib/Bio/KBase/$(SERVICE)

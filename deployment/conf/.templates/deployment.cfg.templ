@@ -1,0 +1,45 @@
+#
+# The deploy.cfg file is located in the module top dir is a necessary file
+# needed for deployments. This file contains config variables, such as 
+# mongodb-host, mysqldb-host. Standard variable names are listed on the trac
+# wiki at https://trac.kbase.us/projects/kbase/wiki/DeployCfgStandards
+#
+# The variables in the deploy.cfg file will get "injected" into the module
+# makefile. In short, the variable is uppercased and dashes become underscores,
+# so mongodb-host in the deploy.cfg file becomes MONGODB_HOST in the module
+# makefile when the module makefile is invoked by the system make file at the
+# top level of the dev container.
+#
+
+[UserProfile]
+# host where mongo lives, e.g. localhost:27017
+mongodb-host = localhost
+# name of the workspace mongo database
+mongodb-database = user_profile_db
+# the user name for an account with readWrite access to the database
+#mongodb-user = add username here
+# password for the account
+#mongodb-pwd = add password here
+
+# MongoDB reconnect retry count. The service will try to reconnect 1/s until
+# this limit has been reached.
+mongodb-retry = 0
+
+# the user name for an administrator
+admin = kbuserprofileadmin
+
+# port for the service.
+port = 7126
+
+# server thread count - this determines the number of requests that can be
+# processed simultaneously.
+server-threads = 20
+
+#Minimum memory size in MB.
+min-memory = 1000
+
+#Maximum memory size in MB.
+max-memory = 2000
+
+auth-service-url = https://kbase.us/services/authorization
+globus-url =  https://nexus.api.globusonline.org
