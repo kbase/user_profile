@@ -19,7 +19,7 @@ mongodb-database = {{ default .Env.mongodb_database "user_profile_db" }}
 # the user name for an account with readWrite access to the database
 mongodb-user = {{ default .Env.mongodb_user "upserv" }}
 # password for the account
-#mongodb-pwd = {{ default .Env.mongodb_pwd "" }}
+mongodb-pwd = {{ default .Env.mongodb_pwd "fake" }}
 
 # MongoDB reconnect retry count. The service will try to reconnect 1/s until
 # this limit has been reached.
@@ -44,5 +44,6 @@ min-memory = {{ default .Env.min_memory "1000" }}
 #Maximum memory size in MB.
 max-memory = {{ default .Env.max_memory "2000" }}
 
-auth-service-url = {{ default .Env.auth_service_url "https://kbase.us/services/authorization" }}
+auth-service-url = {{ default .Env.auth_service_url "https://ci-kbase.us/services/authorization" }}
+auth-service-url-allow-insecure = {{ default .Env.auth_service_allow_insecure "false" }}
 globus-url =  {{ default .Env.globus_url "https://nexus.api.globusonline.org" }}
