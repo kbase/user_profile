@@ -41,6 +41,7 @@ ENTRYPOINT [ "/kb/deployment/bin/dockerize" ]
 CMD [  "-template", "/kb/deployment/conf/.templates/deployment.cfg.templ:/kb/deployment/conf/deployment.cfg", \
        "-template", "/kb/deployment/conf/.templates/http.ini.templ:/kb/deployment/jettybase/start.d/http.ini", \
        "-template", "/kb/deployment/conf/.templates/server.ini.templ:/kb/deployment/jettybase/start.d/server.ini", \
+       "-template", "/kb/deployment/conf/.templates/start-server.sh.templ:/kb/deployment/bin/start-server.sh", \
        "-stdout", "/kb/deployment/jettybase/logs/request.log", \
        "-poll", \
-       "/bin/bash", "-c", "java -DSTOP.PORT=8079 -DSTOP.KEY=foo -Djetty.home=$JETTY_HOME -jar $JETTY_HOME/start.jar" ]
+       "/bin/sh", "-x", "/kb/deployment/bin/start-server.sh" ]
