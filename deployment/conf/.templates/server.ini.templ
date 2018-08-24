@@ -7,7 +7,7 @@
 jetty.threadPool.minThreads=10
 
 ## Maximum number of threads
-jetty.threadPool.maxThreads=200
+jetty.threadPool.maxThreads={{ default .Env.server_threads "20" }}
 
 ## Thread idle timeout (in milliseconds)
 # jetty.threadPool.idleTimeout=60000

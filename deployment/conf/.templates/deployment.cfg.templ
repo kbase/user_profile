@@ -28,21 +28,8 @@ mongodb-retry = 0
 # the user name for an administrator
 admin = {{ default .Env.admin "kbuserprofileadmin" }}
 
-# port for the service.
-port = {{ default .Env.port "7126" }}
-
 # Base directory
 basedir={{ default .Env.basedir "user_profile" }}
-
-# server thread count - this determines the number of requests that can be
-# processed simultaneously.
-server-threads = {{ default .Env.server_threads "20" }}
-
-#Minimum memory size in MB.
-min-memory = {{ default .Env.min_memory "1000" }}
-
-#Maximum memory size in MB.
-max-memory = {{ default .Env.max_memory "2000" }}
 
 auth-service-url = {{ default .Env.auth_service_url "https://ci-kbase.us/services/authorization" }}
 auth-service-url-allow-insecure = {{ default .Env.auth_service_allow_insecure "false" }}
