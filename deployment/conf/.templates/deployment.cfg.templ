@@ -1,0 +1,36 @@
+#
+# The deploy.cfg file is located in the module top dir is a necessary file
+# needed for deployments. This file contains config variables, such as 
+# mongodb-host, mysqldb-host. Standard variable names are listed on the trac
+# wiki at https://trac.kbase.us/projects/kbase/wiki/DeployCfgStandards
+#
+# The variables in the deploy.cfg file will get "injected" into the module
+# makefile. In short, the variable is uppercased and dashes become underscores,
+# so mongodb-host in the deploy.cfg file becomes MONGODB_HOST in the module
+# makefile when the module makefile is invoked by the system make file at the
+# top level of the dev container.
+#
+
+[UserProfile]
+# host where mongo lives, e.g. localhost:27017
+mongodb-host = {{ default .Env.mongodb_host "ci-mongo" }}
+# name of the workspace mongo database
+mongodb-database = {{ default .Env.mongodb_database "user_profile_db" }}
+# the user name for an account with readWrite access to the database
+mongodb-user = {{ default .Env.mongodb_user "upserv" }}
+# password for the account
+mongodb-pwd = {{ default .Env.mongodb_pwd "fake" }}
+
+# MongoDB reconnect retry count. The service will try to reconnect 1/s until
+# this limit has been reached.
+mongodb-retry = 0
+
+# the user name for an administrator
+admin = {{ default .Env.admin "kbuserprofileadmin" }}
+
+# Base directory
+basedir={{ default .Env.basedir "user_profile" }}
+
+auth-service-url = {{ default .Env.auth_service_url "https://ci-kbase.us/services/authorization" }}
+auth-service-url-allow-insecure = {{ default .Env.auth_service_allow_insecure "false" }}
+globus-url =  {{ default .Env.globus_url "https://nexus.api.globusonline.org" }}

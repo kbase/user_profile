@@ -12,7 +12,7 @@ DEFAULT_SCRIPT_URL = $(URL)
 
 GITCOMMIT := $(shell git rev-parse --short HEAD)
 TAGS := $(shell git tag --contains $(GITCOMMIT))
-
+BRANCH := $(shell git symbolic-ref --short HEAD)
 TOP_DIR = $(shell python -c "import os.path as p; print p.abspath('../..')")
 
 TOP_DIR_NAME = $(shell basename $(TOP_DIR))
@@ -146,6 +146,9 @@ deploy-upstart:
 	echo "stop on runlevel [!23]" >> /etc/init/$(SERVICE).conf 
 	echo "pre-start exec chown -R $(SERVICE_USER) $(TARGET)/services/$(SERVICE)" >> /etc/init/$(SERVICE).conf 
 	echo "exec su kbase -c '$(TARGET)/services/$(SERVICE)/start_service'" >> /etc/init/$(SERVICE).conf 
+
+docker_image:
+	IMAGE_NAME=kbase/user_profile:$(BRANCH) bash -x hooks/build
 
 undeploy:
 	-rm -rf $(SERVICE_DIR)
