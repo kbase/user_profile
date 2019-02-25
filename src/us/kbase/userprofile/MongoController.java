@@ -11,7 +11,6 @@ import java.util.Map.Entry;
 
 /*
 import org.apache.commons.lang3.StringUtils;*/
-import org.jongo.Jongo;
 
 import us.kbase.common.mongo.GetMongoDB;
 import us.kbase.common.mongo.exceptions.InvalidHostException;
@@ -32,8 +31,6 @@ public class MongoController {
 
 	private final DB db;
 	private final DBCollection profiles;
-	@SuppressWarnings("unused")
-	private final Jongo jongo;
 	//private final MongoCollection jProfiles;
 	
 	public MongoController(final String host, final String database,final int mongoRetryCount)
@@ -41,7 +38,6 @@ public class MongoController {
 		
 		db = GetMongoDB.getDB(host, database, mongoRetryCount, 10);
 		profiles = db.getCollection(COL_PROFILES);
-		jongo = new Jongo(db);
 		//jProfiles = jongo.getCollection(COL_PROFILES);
 		ensureIndex();
 		/*System.out.println(getProfile("mike3"));
@@ -65,7 +61,6 @@ public class MongoController {
 			InterruptedException, MongoAuthException {
 		db = GetMongoDB.getDB(host, database, mongoUser, mongoPswd, mongoRetryCount, 10);
 		profiles = db.getCollection(COL_PROFILES);
-		jongo = new Jongo(db);
 		//jProfiles = jongo.getCollection(COL_PROFILES);
 		ensureIndex();
 	}
@@ -153,8 +148,7 @@ public class MongoController {
 		//DBObject userText = new BasicDBObject("user.username","text");
 		DBObject unique = new BasicDBObject("unique",1);
 		//DBObject nameText = new BasicDBObject("user.realname","text");
-		profiles.resetIndexCache();
-		profiles.ensureIndex(userUnique, unique);
+		profiles.createIndex(userUnique, unique);
 		//profiles.ensureIndex(userText);
 		//profiles.ensureIndex(nameText);
 	}
