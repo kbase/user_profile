@@ -21,8 +21,6 @@ import us.kbase.auth.AuthConfig;
 import us.kbase.auth.UserDetail;
 
 import org.ini4j.Ini;
-
-import java.io.File;
 //END_HEADER
 
 /**

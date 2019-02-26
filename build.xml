@@ -33,7 +33,7 @@
   <!-- Properties in ant are immutable, so the following assignment will only take place if jardir was not set above. -->
   <property name="jardir" location="${env.JENKINS_JARS_MODULE_PATH}/lib/jars"/>
 
-  <condition property="commonjar" value="kbase/common/kbase-common-0.0.22.jar">
+  <condition property="commonjar" value="kbase/common/kbase-common-0.0.24.jar">
     <or>
       <equals arg1="${env.JENKINS_JAVA_COMMON_JARFILE}" arg2=""/>
       <not>
@@ -45,7 +45,7 @@
   <property name="commonjar" value="${env.JENKINS_JAVA_COMMON_JARFILE}"/>
 
   <fileset dir="${jardir}" id="sourceslib">
-    <include name="kbase/kbase-common-temp.jar"/>
+    <include name="kbase/kbase-common-0.0.24.jar"/>
   </fileset>
 
   <fileset dir="${jardir}" id="serverlib">
@@ -72,11 +72,11 @@
     <include name="apache_commons/commons-logging-1.1.1.jar"/>
     <include name="apache_commons/commons-configuration-1.10.jar"/>
     <include name="apache_commons/commons-io-2.4.jar"/>
-    <include name="google/guava-14.0.1.jar"/>
+    <include name="google/guava-18.0.jar"/>
     <include name="mongo/mongo-java-driver-2.13.3.jar"/>
     <include name="jongo/jongo-0.5-early-20130912-1506.jar"/>
     <include name="bson4jackson/bson4jackson-2.2.0-2.2.0.jar"/>
-    <include name="slf4j/slf4j-api-1.7.7.jar"/>
+    <include name="slf4j/slf4j-api-1.7.25.jar"/>
     <include name="logback/logback-core-1.1.2.jar"/>
     <include name="logback/logback-classic-1.1.2.jar"/>
   </fileset>
