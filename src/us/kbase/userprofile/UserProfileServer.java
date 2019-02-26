@@ -111,7 +111,6 @@ public class UserProfileServer extends JsonServerServlet {
 
         System.out.println(UserProfileServer.class.getName() + ": " + CFG_MONGO_HOST +" = " + getConfig(CFG_MONGO_HOST));
         System.out.println(UserProfileServer.class.getName() + ": " + CFG_MONGO_DB +" = " + getConfig(CFG_MONGO_DB));
-        System.out.println(UserProfileServer.class.getName() + ": " + CFG_MONGO_RETRY +" = " + getConfig(CFG_MONGO_RETRY));
         System.out.println(UserProfileServer.class.getName() + ": " + CFG_ADMIN +" = " + getConfig(CFG_ADMIN));
         
         String authAllowInsecureString = config().get(CFG_PROP_AUTH_INSECURE);
@@ -131,15 +130,13 @@ public class UserProfileServer extends JsonServerServlet {
         	db = new MongoController(
             		getConfig(CFG_MONGO_HOST),
             		getConfig(CFG_MONGO_DB),
-            		Integer.parseInt(getConfig(CFG_MONGO_RETRY)),
             		mongoUser,
             		getConfig(CFG_MONGO_PSWD)
             		);
         } else {
         	db = new MongoController(
         		getConfig(CFG_MONGO_HOST),
-        		getConfig(CFG_MONGO_DB),
-        		Integer.parseInt(getConfig(CFG_MONGO_RETRY)));
+        		getConfig(CFG_MONGO_DB));
         }
 
         //END_CONSTRUCTOR
