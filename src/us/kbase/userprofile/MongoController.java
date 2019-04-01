@@ -1,7 +1,5 @@
 package us.kbase.userprofile;
 
-import java.io.IOException;
-import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -11,11 +9,7 @@ import java.util.Map.Entry;
 
 /*
 import org.apache.commons.lang3.StringUtils;*/
-import org.jongo.Jongo;
 
-import us.kbase.common.mongo.GetMongoDB;
-import us.kbase.common.mongo.exceptions.InvalidHostException;
-import us.kbase.common.mongo.exceptions.MongoAuthException;
 import us.kbase.common.service.UObject;
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -24,24 +18,23 @@ import com.mongodb.DB;
 import com.mongodb.DBCollection;
 import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
+import com.mongodb.MongoClient;
+import com.mongodb.MongoClientOptions;
+import com.mongodb.MongoCredential;
+import com.mongodb.ServerAddress;
 import com.mongodb.util.JSON;
 
 public class MongoController {
 
 	private static final String COL_PROFILES = "profiles";
 
-	private final DB db;
 	private final DBCollection profiles;
-	@SuppressWarnings("unused")
-	private final Jongo jongo;
 	//private final MongoCollection jProfiles;
 	
-	public MongoController(final String host, final String database,final int mongoRetryCount)
-			throws UnknownHostException, IOException, InvalidHostException,InterruptedException {
+	public MongoController(final String host, final String database) {
 		
-		db = GetMongoDB.getDB(host, database, mongoRetryCount, 10);
+		final DB db = getDB(host, database, null, null);
 		profiles = db.getCollection(COL_PROFILES);
-		jongo = new Jongo(db);
 		//jProfiles = jongo.getCollection(COL_PROFILES);
 		ensureIndex();
 		/*System.out.println(getProfile("mike3"));
@@ -59,15 +52,27 @@ public class MongoController {
 		filterUsers("ik");*/
 	}
 	
-	public MongoController(final String host, final String database,final int mongoRetryCount,
-			final String mongoUser, final String mongoPswd)
-			throws UnknownHostException, IOException, InvalidHostException,
-			InterruptedException, MongoAuthException {
-		db = GetMongoDB.getDB(host, database, mongoUser, mongoPswd, mongoRetryCount, 10);
+	public MongoController(final String host, final String database,
+			final String mongoUser, final String mongoPswd) {
+		final DB db = getDB(host, database, mongoUser, mongoPswd);
 		profiles = db.getCollection(COL_PROFILES);
-		jongo = new Jongo(db);
 		//jProfiles = jongo.getCollection(COL_PROFILES);
 		ensureIndex();
+	}
+	
+	private DB getDB(final String host, final String db, final String user, final String pwd) {
+		// TODO update to non-deprecated APIs
+		final MongoClient cli;
+		if (user != null) {
+			final MongoCredential creds = MongoCredential.createCredential(
+					user, db, pwd.toCharArray());
+			// unclear if and when it's safe to clear the password
+			cli = new MongoClient(new ServerAddress(host), creds,
+					MongoClientOptions.builder().build());
+		} else {
+			cli = new MongoClient(new ServerAddress(host));
+		}
+		return cli.getDB(db);
 	}
 	
 	
@@ -153,8 +158,7 @@ public class MongoController {
 		//DBObject userText = new BasicDBObject("user.username","text");
 		DBObject unique = new BasicDBObject("unique",1);
 		//DBObject nameText = new BasicDBObject("user.realname","text");
-		profiles.resetIndexCache();
-		profiles.ensureIndex(userUnique, unique);
+		profiles.createIndex(userUnique, unique);
 		//profiles.ensureIndex(userText);
 		//profiles.ensureIndex(nameText);
 	}

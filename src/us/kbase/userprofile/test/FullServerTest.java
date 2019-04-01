@@ -9,8 +9,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
-import junit.framework.Assert;
-
 import org.apache.commons.io.FileUtils;
 import org.ini4j.Ini;
 import org.ini4j.Profile.Section;
@@ -32,11 +30,6 @@ import us.kbase.userprofile.GlobusUser;
 import us.kbase.userprofile.UserProfileClient;
 import us.kbase.userprofile.UserProfileServer;
 
-
-/*
- * 
- * 
- */
 public class FullServerTest {
 	
 	private static File tempDir;
@@ -47,7 +40,6 @@ public class FullServerTest {
 	private static UserProfileClient ADMIN_CLIENT;
 
 	private static String USER1_NAME;
-	private static String ADMIN_NAME;
 	
 	private static boolean removeTempDir;
 	
@@ -213,8 +205,6 @@ public class FullServerTest {
 			System.out.println("Validating test admin with provided user name and password");
 			adminAuthToken = authService.login(admin, adminPwd).getToken();
 		}
-		ADMIN_NAME = user1AuthToken.getUserName();
-
 
 
 		//create the temp directory for this test
@@ -262,11 +252,13 @@ public class FullServerTest {
 
 
 		CLIENT = new UserProfileClient(new URL("http://localhost:" + SERVER.getServerPort()));
-		CLIENT.setAuthAllowedForHttp(true);
-		USR1_CLIENT = new UserProfileClient(new URL("http://localhost:" + SERVER.getServerPort()), user1AuthToken);
-		USR1_CLIENT.setAuthAllowedForHttp(true);
-		ADMIN_CLIENT = new UserProfileClient(new URL("http://localhost:" + SERVER.getServerPort()), adminAuthToken);
-		ADMIN_CLIENT.setAuthAllowedForHttp(true);
+		CLIENT.setIsInsecureHttpConnectionAllowed(true);
+		USR1_CLIENT = new UserProfileClient(new URL("http://localhost:" + SERVER.getServerPort()),
+				user1AuthToken);
+		USR1_CLIENT.setIsInsecureHttpConnectionAllowed(true);
+		ADMIN_CLIENT = new UserProfileClient(new URL("http://localhost:" + SERVER.getServerPort()),
+				adminAuthToken);
+		ADMIN_CLIENT.setIsInsecureHttpConnectionAllowed(true);
 	}
 	
 	@AfterClass

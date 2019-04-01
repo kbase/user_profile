@@ -2,8 +2,20 @@ USER PROFILE SERVICE
 -----------------------------------------
 A lightweight service to store public KBase user profiles and related basic information.
 
-VERSION: 0.1.0 (Released TBD)
---------------------------------------
+VERSION: 0.2.1 (Released TBD)
+------------------------------
+
+- Updated the MongoDB client to 3.10.1, allowing for Mongo 3.x compatibility. 
+  As such, the mongodb-retry deploy.cfg parameter has been removed, as the MongoDB client
+  now handles that internally.
+
+VERSION: 0.1.X to 0.2.0
+-----------------------
+
+* The release notes for versions between 0.1.0 and 0.2.1 are lost.
+
+VERSION: 0.1.0 (Released several years ago, now being Feb 2019)
+---------------------------------------------------------------
 NEW FEATURES:
 - This is the first release of the User Profile service.  All features are new.
 
