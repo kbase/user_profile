@@ -2,7 +2,7 @@ USER PROFILE SERVICE
 -----------------------------------------
 A lightweight service to store public KBase user profiles and related basic information.
 
-VERSION: 0.2.1 (Released TBD)
+VERSION: 0.2.1 (Released 4/1/19)
 ------------------------------
 
 - Updated the MongoDB client to 3.10.1, allowing for Mongo 3.x compatibility. 
