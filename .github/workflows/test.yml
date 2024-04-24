@@ -25,10 +25,10 @@ jobs:
           # the current production setup
           - java: '8'
             mongo: 'mongodb-linux-x86_64-3.6.13'
-            ant_test: 'test'
+            gradle_test: 'test'
           - java: '11'
             mongo: 'mongodb-linux-x86_64-3.6.23'
-            ant_test: 'test'
+            gradle_test: 'test'
     steps:
       - uses: actions/checkout@v3
 
@@ -49,9 +49,6 @@ jobs:
           # move to parent dir of homedir to install binaries etc
           cd ..
           
-          # set up jars
-          git clone https://github.com/kbase/jars
-
           # set up mongo
           wget -q http://fastdl.mongodb.org/linux/${{matrix.mongo}}.tgz
           tar xfz ${{matrix.mongo}}.tgz
@@ -68,11 +65,10 @@ jobs:
       - name: Run tests
         shell: bash
         run: |
-          ant ${{matrix.ant_test}}
+          ./gradlew ${{matrix.gradle_test}}
 
-# TODO TEST activate codecov when switching to gradle
-#      - name: Upload coverage to Codecov
-#        uses: codecov/codecov-action@v3
-#        with:
-#          token: ${{ secrets.CODECOV_TOKEN }}
-#          fail_ci_if_error: true
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v3
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          fail_ci_if_error: true

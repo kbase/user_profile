@@ -25,7 +25,7 @@ public class UserProfileClient {
     private static URL DEFAULT_URL = null;
     static {
         try {
-            DEFAULT_URL = new URL("https://kbase.us/services/user_profile/rpc");
+            DEFAULT_URL = new URL("https://ci.kbase.us/services/user_profile/rpc");
         } catch (MalformedURLException mue) {
             throw new RuntimeException("Compile error in client - bad url compiled");
         }

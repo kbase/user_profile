@@ -12,7 +12,7 @@ from __future__ import print_function
 try:
     # baseclient and this client are in a package
     from .baseclient import BaseClient as _BaseClient  # @UnusedImport
-except:
+except ImportError:
     # no they aren't
     from baseclient import BaseClient as _BaseClient  # @Reimport
 
@@ -23,9 +23,9 @@ class UserProfile(object):
             self, url=None, timeout=30 * 60, user_id=None,
             password=None, token=None, ignore_authrc=False,
             trust_all_ssl_certificates=False,
-            auth_svc='https://kbase.us/services/authorization/Sessions/Login'):
+            auth_svc='https://ci.kbase.us/services/auth/api/legacy/KBase/Sessions/Login'):
         if url is None:
-            url = 'https://kbase.us/services/user_profile/rpc'
+            url = 'https://ci.kbase.us/services/user_profile/rpc'
         self._service_ver = None
         self._client = _BaseClient(
             url, timeout=timeout, user_id=user_id, password=password,
@@ -37,9 +37,8 @@ class UserProfile(object):
         """
         :returns: instance of String
         """
-        return self._client.call_method(
-            'UserProfile.ver',
-            [], self._service_ver, context)
+        return self._client.call_method('UserProfile.ver',
+                                        [], self._service_ver, context)
 
     def filter_users(self, p, context=None):
         """
@@ -52,9 +51,8 @@ class UserProfile(object):
            "username" of type "username", parameter "realname" of type
            "realname", parameter "thumbnail" of String
         """
-        return self._client.call_method(
-            'UserProfile.filter_users',
-            [p], self._service_ver, context)
+        return self._client.call_method('UserProfile.filter_users',
+                                        [p], self._service_ver, context)
 
     def get_user_profile(self, usernames, context=None):
         """
@@ -68,9 +66,8 @@ class UserProfile(object):
            parameter "thumbnail" of String, parameter "profile" of
            unspecified object
         """
-        return self._client.call_method(
-            'UserProfile.get_user_profile',
-            [usernames], self._service_ver, context)
+        return self._client.call_method('UserProfile.get_user_profile',
+                                        [usernames], self._service_ver, context)
 
     def set_user_profile(self, p, context=None):
         """
@@ -85,9 +82,8 @@ class UserProfile(object):
            "username", parameter "realname" of type "realname", parameter
            "thumbnail" of String, parameter "profile" of unspecified object
         """
-        return self._client.call_method(
-            'UserProfile.set_user_profile',
-            [p], self._service_ver, context)
+        return self._client.call_method('UserProfile.set_user_profile',
+                                        [p], self._service_ver, context)
 
     def update_user_profile(self, p, context=None):
         """
@@ -103,9 +99,8 @@ class UserProfile(object):
            "username", parameter "realname" of type "realname", parameter
            "thumbnail" of String, parameter "profile" of unspecified object
         """
-        return self._client.call_method(
-            'UserProfile.update_user_profile',
-            [p], self._service_ver, context)
+        return self._client.call_method('UserProfile.update_user_profile',
+                                        [p], self._service_ver, context)
 
     def lookup_globus_user(self, usernames, context=None):
         """
@@ -114,9 +109,8 @@ class UserProfile(object):
            "GlobusUser" -> structure: parameter "email" of String, parameter
            "fullName" of String, parameter "userName" of String
         """
-        return self._client.call_method(
-            'UserProfile.lookup_globus_user',
-            [usernames], self._service_ver, context)
+        return self._client.call_method('UserProfile.lookup_globus_user',
+                                        [usernames], self._service_ver, context)
 
     def status(self, context=None):
         return self._client.call_method('UserProfile.status',
