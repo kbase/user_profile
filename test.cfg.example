@@ -14,6 +14,5 @@ test.admin-token = xxx
 test.usr1-token = xxx
 
 test.auth-service-url = https://ci.kbase.us/services/auth/api/legacy/KBase
-test.globus-url = https://ci.kbase.us/services/auth/api/legacy/globus
 
 #test.auth-service-url-allow-insecure = false

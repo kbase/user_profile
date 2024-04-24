@@ -12,13 +12,6 @@ import us.kbase.common.service.RpcContext;
 
 //BEGIN_HEADER
 import java.util.ArrayList;
-import java.util.HashMap;
-
-import java.net.URL;
-
-import us.kbase.auth.ConfigurableAuthService;
-import us.kbase.auth.AuthConfig;
-import us.kbase.auth.UserDetail;
 
 import org.ini4j.Ini;
 //END_HEADER
@@ -32,7 +25,7 @@ public class UserProfileServer extends JsonServerServlet {
     private static final long serialVersionUID = 1L;
     private static final String version = "0.0.1";
     private static final String gitUrl = "https://github.com/kbase/user_profile.git";
-    private static final String gitCommitHash = "9c4a73d699c07f6c18845b5eebc50b58eb3fce06";
+    private static final String gitCommitHash = "8a56e04b45d01c27c45c65dd80f62c5b4dde885c";
 
     //BEGIN_CLASS_HEADER
     public static final String VERSION = "0.2.2";
@@ -84,28 +77,12 @@ public class UserProfileServer extends JsonServerServlet {
     }
 
 	private final MongoController db;
-    private final URL authServiceUrl;
-    private final URL globusUrl;
     private final boolean authAllowInsecure;
     //END_CLASS_HEADER
 
     public UserProfileServer() throws Exception {
         super("UserProfile");
         //BEGIN_CONSTRUCTOR
-
-        String authServiceUrlString = config().get(CFG_PROP_AUTH_SERVICE_URL);
-        if (authServiceUrlString == null) {
-            throw new IllegalStateException("Parameter " + CFG_PROP_AUTH_SERVICE_URL + " is not defined in configuration");
-        }
-        System.out.println(UserProfileServer.class.getName() + ": " + CFG_PROP_AUTH_SERVICE_URL +" = " + authServiceUrlString);
-        this.authServiceUrl = new URL(authServiceUrlString);
-
-        String globusUrlString = config().get(CFG_PROP_GLOBUS_URL);
-        if (globusUrlString == null) {
-            throw new IllegalStateException("Parameter " + CFG_PROP_GLOBUS_URL + " is not defined in configuration");
-        }
-        System.out.println(UserProfileServer.class.getName() + ": " + CFG_PROP_GLOBUS_URL +" = " + globusUrlString);
-        this.globusUrl = new URL(globusUrlString);
 
         System.out.println(UserProfileServer.class.getName() + ": " + CFG_MONGO_HOST +" = " + getConfig(CFG_MONGO_HOST));
         System.out.println(UserProfileServer.class.getName() + ": " + CFG_MONGO_DB +" = " + getConfig(CFG_MONGO_DB));
@@ -256,40 +233,6 @@ public class UserProfileServer extends JsonServerServlet {
     	
     	db.updateProfile(p.getProfile());
         //END update_user_profile
-    }
-
-    /**
-     * <p>Original spec-file function name: lookup_globus_user</p>
-     * <pre>
-     * </pre>
-     * @param   usernames   instance of list of original type "username"
-     * @return   parameter "users" of mapping from original type "username" to type {@link us.kbase.userprofile.GlobusUser GlobusUser}
-     */
-    @JsonServerMethod(rpc = "UserProfile.lookup_globus_user", async=true)
-    public Map<String,GlobusUser> lookupGlobusUser(List<String> usernames, AuthToken authPart, RpcContext jsonRpcContext) throws Exception {
-        Map<String,GlobusUser> returnVal = null;
-        //BEGIN lookup_globus_user
-
-        ConfigurableAuthService authService = new ConfigurableAuthService(
-                                                        new AuthConfig()
-                                                            .withKBaseAuthServerURL(authServiceUrl)
-                                                            .withGlobusAuthURL(globusUrl)
-                                                            .withAllowInsecureURLs(authAllowInsecure)
-                                                    );
-
-    	Map<String, UserDetail> data = authService.fetchUserDetail(usernames, authPart);
-    	returnVal = new HashMap<String, GlobusUser>(data.size());
-
-    	for (UserDetail ud : data.values()) {
-    		if(ud!=null) {
-	    		GlobusUser gu = new GlobusUser().withUserName(ud.getUserName());
-	    		if(ud.getEmail()!=null) { gu.setEmail(ud.getEmail()); }
-	    		if(ud.getFullName()!=null) { gu.setFullName(ud.getFullName()); }
-	    		returnVal.put(ud.getUserName(), gu);
-    		}
-    	}
-        //END lookup_globus_user
-        return returnVal;
     }
     @JsonServerMethod(rpc = "UserProfile.status")
     public Map<String, Object> status() {

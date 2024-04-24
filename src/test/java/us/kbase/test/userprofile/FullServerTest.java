@@ -27,7 +27,6 @@ import us.kbase.userprofile.FilterParams;
 import us.kbase.userprofile.SetUserProfileParams;
 import us.kbase.userprofile.User;
 import us.kbase.userprofile.UserProfile;
-import us.kbase.userprofile.GlobusUser;
 import us.kbase.userprofile.UserProfileClient;
 import us.kbase.userprofile.UserProfileServer;
 
@@ -139,19 +138,6 @@ public class FullServerTest {
 		assertTrue(0<users.size());
 	}
 
-	@Test
-	public void testFetchGlobusUser() throws Exception {
-		Map<String, GlobusUser> results = USR1_CLIENT.lookupGlobusUser(Arrays.asList("msneddon", USER1_NAME));
-		assertEquals(2, results.size());
-		assertNotNull(results.get(USER1_NAME).getEmail());
-		assertNotNull(results.get(USER1_NAME).getFullName());
-		assertNotNull(results.get("msneddon").getFullName());
-		assertTrue(0<results.get(USER1_NAME).getEmail().length());
-		assertTrue(0<results.get(USER1_NAME).getFullName().length());
-		assertTrue(0<results.get("msneddon").getFullName().length());
-	}
-
-
 	@BeforeClass
 	public static void setUpClass() throws Exception {
 		
@@ -173,7 +159,6 @@ public class FullServerTest {
 		final String adminToken = sec.get("test.admin-token");
 		final String user1Token = sec.get("test.usr1-token");
 		final String authServiceUrl = sec.get("test.auth-service-url");
-		final String globusUrl = sec.get("test.globus-url");
 		final String authAllowInsecureString = sec.get("test.auth-service-url-allow-insecure");
 		
 		// start mongo
@@ -182,14 +167,12 @@ public class FullServerTest {
 		System.out.println("test.temp-dir         = " + tempDirName);
 		System.out.println("test.mongo-exe-path     = " + mongoExePath);
 		System.out.println("test.auth-service-url = " + authServiceUrl);
-		System.out.println("test.globus-url       = " + globusUrl);
 		System.out.println("test.auth-service-url-allow-insecure = " + authAllowInsecureString);
 
 		// Create tokens for the admin account and usr1 account
 		ConfigurableAuthService authService = new ConfigurableAuthService(
 				new AuthConfig()
 					.withKBaseAuthServerURL(new URL(authServiceUrl))
-					.withGlobusAuthURL(new URL(globusUrl))
 					.withAllowInsecureURLs("true".equals(authAllowInsecureString))
 			);
 
@@ -221,7 +204,6 @@ public class FullServerTest {
 		ws.add(UserProfileServer.CFG_MONGO_DB , "user_profile_test");
 		ws.add(UserProfileServer.CFG_ADMIN, adminAuthToken.getUserName());
 		ws.add(UserProfileServer.CFG_PROP_AUTH_SERVICE_URL, authServiceUrl);
-		ws.add(UserProfileServer.CFG_PROP_GLOBUS_URL, globusUrl);
 		ws.add(UserProfileServer.CFG_PROP_AUTH_INSECURE, authAllowInsecureString);
 		
 		ini.store(iniFile);
