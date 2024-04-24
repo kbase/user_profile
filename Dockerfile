@@ -1,6 +1,7 @@
-FROM kbase/kb_jre:latest AS build
+FROM kbase/sdkbase2:latest AS build
+
 # Multistage Build Setup
-RUN apt-get -y update && apt-get -y install ant git openjdk-8-jdk
+
 RUN cd /tmp && \
     git clone https://github.com/kbase/jars
 
