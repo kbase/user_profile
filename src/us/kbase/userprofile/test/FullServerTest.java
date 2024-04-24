@@ -5,6 +5,7 @@ import static org.junit.Assert.*;
 import java.io.File;
 import java.lang.reflect.Field;
 import java.net.URL;
+import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -21,7 +22,7 @@ import us.kbase.auth.ConfigurableAuthService;
 import us.kbase.auth.AuthConfig;
 
 import us.kbase.common.service.UObject;
-
+import us.kbase.common.test.controllers.mongo.MongoController;
 import us.kbase.userprofile.FilterParams;
 import us.kbase.userprofile.SetUserProfileParams;
 import us.kbase.userprofile.User;
@@ -35,6 +36,7 @@ public class FullServerTest {
 	private static File tempDir;
 	
 	private static UserProfileServer SERVER;
+	private static MongoController MONGO;
 	private static UserProfileClient CLIENT;
 	private static UserProfileClient USR1_CLIENT;
 	private static UserProfileClient ADMIN_CLIENT;
@@ -152,67 +154,55 @@ public class FullServerTest {
 
 	@BeforeClass
 	public static void setUpClass() throws Exception {
+		
+		// TODO TEST use the auth controller in the auth2 repo and start up a local service
 
 		// Parse the test config variables
-		String tempDirName = System.getProperty("test.temp-dir");
+		final String testcfg = System.getProperty("test.cfg");
+		final Ini cfgini = new Ini(new File(testcfg));
+		final String secName = "UserProfile";
+		final Section sec = cfgini.get(secName);
+		if (sec == null) {
+			throw new Exception(String.format(
+					"Missing section %s in config file %s", secName, testcfg));
+		}
 		
-		String mongoHost = System.getProperty("test.mongodb-host");
-		String mongoDatabase = System.getProperty("test.mongodb-database");
-		String admin = System.getProperty("test.admin");
-		String adminPwd = System.getProperty("test.admin-pwd");
-		String adminToken = System.getProperty("test.admin-token");
-		String user1 = System.getProperty("test.usr1");
-		String user1Pwd = System.getProperty("test.usr1-pwd");
-		String user1Token = System.getProperty("test.usr1-token");
-		String authServiceUrl = System.getProperty("test.auth-service-url");
-		String globusUrl = System.getProperty("test.globus-url");
-		String authAllowInsecureString = System.getProperty("test.auth-service-url-allow-insecure");
+		final String tempDirName = sec.get("test.temp-dir");
+		String johnWickTheTempDir = sec.get("test.remove-temp-dir");
+		final String mongoExePath = sec.get("test.mongo-exe-path");
+		final String adminToken = sec.get("test.admin-token");
+		final String user1Token = sec.get("test.usr1-token");
+		final String authServiceUrl = sec.get("test.auth-service-url");
+		final String globusUrl = sec.get("test.globus-url");
+		final String authAllowInsecureString = sec.get("test.auth-service-url-allow-insecure");
 		
-		String s = System.getProperty("test.remove-temp-dir");
+		// start mongo
+		MONGO = new MongoController(mongoExePath, Paths.get(tempDirName));
 		
 		System.out.println("test.temp-dir         = " + tempDirName);
-		System.out.println("test.mongodb-host     = " + mongoHost);
-		System.out.println("test.mongodb-database = " + mongoDatabase);
-		System.out.println("test.admin            = " + admin);
-		System.out.println("test.usr1             = " + user1);
+		System.out.println("test.mongo-exe-path     = " + mongoExePath);
 		System.out.println("test.auth-service-url = " + authServiceUrl);
 		System.out.println("test.globus-url       = " + globusUrl);
 		System.out.println("test.auth-service-url-allow-insecure = " + authAllowInsecureString);
 
 		// Create tokens for the admin account and usr1 account
 		ConfigurableAuthService authService = new ConfigurableAuthService(
-														new AuthConfig()
-															.withKBaseAuthServerURL(new URL(authServiceUrl))
-															.withGlobusAuthURL(new URL(globusUrl))
-															.withAllowInsecureURLs("true".equals(authAllowInsecureString))
-													);
+				new AuthConfig()
+					.withKBaseAuthServerURL(new URL(authServiceUrl))
+					.withGlobusAuthURL(new URL(globusUrl))
+					.withAllowInsecureURLs("true".equals(authAllowInsecureString))
+			);
 
-		AuthToken user1AuthToken;
-		if(user1Token!=null && !user1Token.isEmpty()) {
-			System.out.println("Validating test usr1 with provided token");
-			user1AuthToken = authService.validateToken(user1Token);
-		} else {
-			System.out.println("Validating test usr1 with provided user name and password");
-			user1AuthToken = authService.login(user1, user1Pwd).getToken();
-		}
+		final AuthToken user1AuthToken = authService.validateToken(user1Token);
 		USER1_NAME = user1AuthToken.getUserName();
 
-		AuthToken adminAuthToken;
-		if(adminToken!=null && !adminToken.isEmpty()) {
-			System.out.println("Validating test admin with provided token");
-			adminAuthToken = authService.validateToken(adminToken);
-		} else {
-			System.out.println("Validating test admin with provided user name and password");
-			adminAuthToken = authService.login(admin, adminPwd).getToken();
-		}
+		final AuthToken adminAuthToken = authService.validateToken(adminToken);
 
 
 		//create the temp directory for this test
 		removeTempDir = false;
-		if(s!=null) {
-			if(s.trim().equals("1") || s.trim().equals("yes")) {
-				removeTempDir = true;
-			}
+		if (johnWickTheTempDir != null) {
+			removeTempDir = johnWickTheTempDir.trim().matches("1|yes|true");
 		}
 		tempDir = new File(tempDirName);
 		if (!tempDir.exists())
@@ -227,10 +217,9 @@ public class FullServerTest {
 		
 		Ini ini = new Ini();
 		Section ws = ini.add("UserProfile");
-		ws.add(UserProfileServer.CFG_MONGO_HOST, mongoHost);
-		ws.add(UserProfileServer.CFG_MONGO_DB , mongoDatabase);
-		ws.add(UserProfileServer.CFG_MONGO_RETRY, "0");
-		ws.add(UserProfileServer.CFG_ADMIN, admin);
+		ws.add(UserProfileServer.CFG_MONGO_HOST, "localhost:" + MONGO.getServerPort());
+		ws.add(UserProfileServer.CFG_MONGO_DB , "user_profile_test");
+		ws.add(UserProfileServer.CFG_ADMIN, adminAuthToken.getUserName());
 		ws.add(UserProfileServer.CFG_PROP_AUTH_SERVICE_URL, authServiceUrl);
 		ws.add(UserProfileServer.CFG_PROP_GLOBUS_URL, globusUrl);
 		ws.add(UserProfileServer.CFG_PROP_AUTH_INSECURE, authAllowInsecureString);
@@ -267,6 +256,11 @@ public class FullServerTest {
 			System.out.print("Killing user profile server... ");
 			SERVER.stopServer();
 			System.out.println("Done");
+		}
+		if (MONGO != null) {
+			System.out.print("John Wick is approaching the Mongo instance... ");
+			MONGO.destroy(removeTempDir);
+			System.out.println("it's over");
 		}
 		if(removeTempDir) {
 			FileUtils.deleteDirectory(tempDir);

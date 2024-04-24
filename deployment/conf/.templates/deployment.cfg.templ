@@ -21,10 +21,6 @@ mongodb-user = {{ default .Env.mongodb_user "upserv" }}
 # password for the account
 mongodb-pwd = {{ default .Env.mongodb_pwd "fake" }}
 
-# MongoDB reconnect retry count. The service will try to reconnect 1/s until
-# this limit has been reached.
-mongodb-retry = 0
-
 # the user name for an administrator
 admin = {{ default .Env.admin "kbuserprofileadmin" }}
 
