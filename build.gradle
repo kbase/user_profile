@@ -13,9 +13,6 @@ var DEFAULT_URL = "https://ci.kbase.us/services/user_profile/rpc"
 var LOC_UP_SPEC = "$rootDir/UserProfile.spec"
 var LOC_DOC_HTML = "$rootDir/docshtml"
 
-// TODO NOW update dockerfile
-// TODO NOW delete build.xml and Makefile
-
 repositories {
 	mavenCentral()
 }

@@ -1,27 +1,35 @@
 FROM kbase/sdkbase2:latest AS build
 
-# Multistage Build Setup
+WORKDIR /tmp/up
 
-RUN cd /tmp && \
-    git clone https://github.com/kbase/jars
+# dependencies take a while to D/L, so D/L & cache before the build so code changes don't cause
+# a new D/L
+# can't glob *gradle because of the .gradle dir
+COPY build.gradle gradlew settings.gradle /tmp/up/
+COPY gradle/ /tmp/up/gradle/
+RUN ./gradlew dependencies
 
-COPY . /tmp/user_profile
+# Now build the code
+# copy the deployment dir first since it's unlikely to change often
+COPY deployment/ /kb/deployment
+COPY jettybase /kb/deployment/jettybase
+COPY src /tmp/up/src/
+COPY war /tmp/up/war/
+RUN ./gradlew war
 
-# Bypass the makefile, which has perl dependencies, and just use
-# the underlying ant compile and ant buildwar
-RUN cd /tmp/user_profile && \
-    ant compile && \
-    ant buildwar
+# Build the deployment directory
+ENV DEPL=/kb/deployment/jettybase
+RUN mkdir -p $DEPL/webapps
+RUN cp /tmp/up/build/libs/user_profile.war $DEPL/webapps/ROOT.war
 
 FROM kbase/kb_jre:latest
+
 # These ARGs values are passed in via the docker build command
 ARG BUILD_DATE
 ARG VCS_REF
 ARG BRANCH=develop
 
-COPY deployment/ /kb/deployment/
-COPY jettybase/ /kb/deployment/jettybase/
-COPY --from=build /tmp/user_profile/dist/UserProfileService.war /kb/deployment/jettybase/webapps/ROOT.war
+COPY --from=build /kb/deployment/ /kb/deployment/
 
 # The BUILD_DATE value seem to bust the docker cache when the timestamp changes, move to
 # the end

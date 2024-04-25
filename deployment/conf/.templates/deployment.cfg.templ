@@ -17,15 +17,12 @@ mongodb-host = {{ default .Env.mongodb_host "ci-mongo" }}
 # name of the workspace mongo database
 mongodb-database = {{ default .Env.mongodb_database "user_profile_db" }}
 # the user name for an account with readWrite access to the database
-mongodb-user = {{ default .Env.mongodb_user "upserv" }}
+mongodb-user = {{ default .Env.mongodb_user "" }}
 # password for the account
-mongodb-pwd = {{ default .Env.mongodb_pwd "fake" }}
+mongodb-pwd = {{ default .Env.mongodb_pwd "" }}
 
 # the user name for an administrator
 admin = {{ default .Env.admin "kbuserprofileadmin" }}
-
-# Base directory
-basedir={{ default .Env.basedir "user_profile" }}
 
 auth-service-url = {{ default .Env.auth_service_url "https://ci-kbase.us/services/authorization" }}
 auth-service-url-allow-insecure = {{ default .Env.auth_service_allow_insecure "false" }}
