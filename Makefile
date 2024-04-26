@@ -94,8 +94,7 @@ test-client: test-service
 	@# $(ANT) test_client_import
 
 test-service:
-	test/cfg_to_runner.py $(TESTCFG)
-	test/run_tests.sh
+	$(ANT) test
 
 test-scripts:
 	

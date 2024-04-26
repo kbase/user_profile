@@ -4,3 +4,6 @@ classes
 dist
 /build/
 /bin/
+/.settings/
+/test.cfg
+/.pydevproject

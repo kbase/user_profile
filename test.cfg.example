@@ -2,20 +2,16 @@
 
 [UserProfile]
 
-test.temp-dir = test/temp
-test.remove-temp-dir = 1
+test.mongo-exe-path=/path/to/mongod
 
-test.mongodb-host = localhost
-test.mongodb-database = user_profile_test
-
-test.admin = kbuserprofileadmin
+test.temp-dir = user_profile_test_temp
+test.remove-temp-dir = true
 
 # admin token is required
 test.admin-token = xxx
 
 # token is required
 test.usr1-token = xxx
-
 
 test.auth-service-url = https://ci.kbase.us/services/auth/api/legacy/KBase
 test.globus-url = https://ci.kbase.us/services/auth/api/legacy/globus

@@ -47,7 +47,6 @@ public class UserProfileServer extends JsonServerServlet {
     public static final String              CFG_MONGO_DB = "mongodb-database";
     public static final String            CFG_MONGO_USER = "mongodb-user";
     public static final String            CFG_MONGO_PSWD = "mongodb-pwd";
-    public static final String           CFG_MONGO_RETRY = "mongodb-retry";
     public static final String                 CFG_ADMIN = "admin";
     public static final String CFG_PROP_AUTH_SERVICE_URL = "auth-service-url";
     public static final String       CFG_PROP_GLOBUS_URL = "globus-url";
