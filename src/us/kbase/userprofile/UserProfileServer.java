@@ -30,15 +30,12 @@ import org.ini4j.Ini;
  */
 public class UserProfileServer extends JsonServerServlet {
     private static final long serialVersionUID = 1L;
-    private static final String version = "0.2.1";
-    private static final String gitUrl = "https://github.com/kbase/user_profile";
-    // the git commmit hash hasn't been updated in 2 years as of 3/1/19 and there doesn't appear
-    // to be a mechanism to update it correctly, as it needs to be SDK compiled from the 
-    // current commit and then built into a server. Any checked in commit must be wrong.
-    private static final String gitCommitHash = "";
+    private static final String version = "0.0.1";
+    private static final String gitUrl = "https://github.com/kbase/user_profile.git";
+    private static final String gitCommitHash = "9c4a73d699c07f6c18845b5eebc50b58eb3fce06";
 
     //BEGIN_CLASS_HEADER
-    public static final String VERSION = "0.2.1";
+    public static final String VERSION = "0.2.2";
     
     public static final String SYS_PROP_KB_DEPLOYMENT_CONFIG = "KB_DEPLOYMENT_CONFIG";
     public static final String SERVICE_DEPLOYMENT_NAME = "UserProfile";
@@ -90,7 +87,6 @@ public class UserProfileServer extends JsonServerServlet {
     private final URL authServiceUrl;
     private final URL globusUrl;
     private final boolean authAllowInsecure;
-
     //END_CLASS_HEADER
 
     public UserProfileServer() throws Exception {
@@ -140,7 +136,6 @@ public class UserProfileServer extends JsonServerServlet {
         		getConfig(CFG_MONGO_HOST),
         		getConfig(CFG_MONGO_DB));
         }
-
         //END_CONSTRUCTOR
     }
 
@@ -303,9 +298,15 @@ public class UserProfileServer extends JsonServerServlet {
         returnVal = new LinkedHashMap<String, Object>();
         returnVal.put("state", "OK");
         returnVal.put("message", "");
-        returnVal.put("version", version);
+        returnVal.put("version", VERSION);
         returnVal.put("git_url", gitUrl);
-        returnVal.put("git_commit_hash", gitCommitHash);
+        // the git commit can't be correct, as the server needs to be recompiled on the current
+        // commit, which doesn't happen curing the build.
+        //returnVal.put("git_commit_hash", gitCommitHash);
+        @SuppressWarnings("unused")
+        final String foo = gitCommitHash;
+        @SuppressWarnings("unused")
+        final String bar = version;
         //END_STATUS
         return returnVal;
     }
