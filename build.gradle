@@ -15,7 +15,6 @@ var LOC_DOC_HTML = "$rootDir/docshtml"
 
 // TODO NOW update dockerfile
 // TODO NOW delete build.xml and Makefile
-// TODO NOW run tests from Eclipse w/o specifying classpath manually & remove sourceSets & classpath
 
 repositories {
 	mavenCentral()
@@ -126,10 +125,10 @@ task sdkCompileLibs {
 }
 
 task sdkCompileJava {
-	// TODO GRADLE is there a variable for src/main/java when we move the code locations?
+	// TODO GRADLE is there a variable for src/main/java?
 	var cmd = "kb-sdk compile " +
 				"--java " +
-				"--javasrc $rootDir/src " +
+				"--javasrc $rootDir/src/main/java/ " +
 				"--javasrv " +
 				"--out . " +
 				"--url $DEFAULT_URL " + 
@@ -146,22 +145,6 @@ task sdkCompile {
 	dependsOn sdkCompileHTML
 	dependsOn sdkCompileJava
 	dependsOn sdkCompileLibs
-}
-
-// Custom java project layout
-sourceSets {
-	main {
-		java {
-			srcDirs = ["src"]
-			exclude '**/test/**'
-		}
-	}
-	test {
-		java {
-			srcDirs = ["src"]
-			include '**/test/**'
-		}
-	}
 }
 
 configurations {

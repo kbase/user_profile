@@ -1,4 +1,4 @@
-package us.kbase.userprofile.test;
+package us.kbase.test.userprofile;
 
 import static org.junit.Assert.*;
 
