@@ -102,16 +102,6 @@ class UserProfile(object):
         return self._client.call_method('UserProfile.update_user_profile',
                                         [p], self._service_ver, context)
 
-    def lookup_globus_user(self, usernames, context=None):
-        """
-        :param usernames: instance of list of type "username"
-        :returns: instance of mapping from type "username" to type
-           "GlobusUser" -> structure: parameter "email" of String, parameter
-           "fullName" of String, parameter "userName" of String
-        """
-        return self._client.call_method('UserProfile.lookup_globus_user',
-                                        [usernames], self._service_ver, context)
-
     def status(self, context=None):
         return self._client.call_method('UserProfile.status',
                                         [], self._service_ver, context)

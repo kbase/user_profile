@@ -597,98 +597,6 @@ todo: add some way to remove fields.  Fields in profile can only be modified or 
     }
 }
  
-
-
-=head2 lookup_globus_user
-
-  $users = $obj->lookup_globus_user($usernames)
-
-=over 4
-
-=item Parameter and return types
-
-=begin html
-
-<pre>
-$usernames is a reference to a list where each element is an UserProfile.username
-$users is a reference to a hash where the key is an UserProfile.username and the value is an UserProfile.GlobusUser
-username is a string
-GlobusUser is a reference to a hash where the following keys are defined:
-	email has a value which is a string
-	fullName has a value which is a string
-	userName has a value which is a string
-
-</pre>
-
-=end html
-
-=begin text
-
-$usernames is a reference to a list where each element is an UserProfile.username
-$users is a reference to a hash where the key is an UserProfile.username and the value is an UserProfile.GlobusUser
-username is a string
-GlobusUser is a reference to a hash where the following keys are defined:
-	email has a value which is a string
-	fullName has a value which is a string
-	userName has a value which is a string
-
-
-=end text
-
-=item Description
-
-
-
-=back
-
-=cut
-
- sub lookup_globus_user
-{
-    my($self, @args) = @_;
-
-# Authentication: required
-
-    if ((my $n = @args) != 1)
-    {
-	Bio::KBase::Exceptions::ArgumentValidationError->throw(error =>
-							       "Invalid argument count for function lookup_globus_user (received $n, expecting 1)");
-    }
-    {
-	my($usernames) = @args;
-
-	my @_bad_arguments;
-        (ref($usernames) eq 'ARRAY') or push(@_bad_arguments, "Invalid type for argument 1 \"usernames\" (value was \"$usernames\")");
-        if (@_bad_arguments) {
-	    my $msg = "Invalid arguments passed to lookup_globus_user:\n" . join("", map { "\t$_\n" } @_bad_arguments);
-	    Bio::KBase::Exceptions::ArgumentValidationError->throw(error => $msg,
-								   method_name => 'lookup_globus_user');
-	}
-    }
-
-    my $url = $self->{url};
-    my $result = $self->{client}->call($url, $self->{headers}, {
-	    method => "UserProfile.lookup_globus_user",
-	    params => \@args,
-    });
-    if ($result) {
-	if ($result->is_error) {
-	    Bio::KBase::Exceptions::JSONRPC->throw(error => $result->error_message,
-					       code => $result->content->{error}->{code},
-					       method_name => 'lookup_globus_user',
-					       data => $result->content->{error}->{error} # JSON::RPC::ReturnObject only supports JSONRPC 1.1 or 1.O
-					      );
-	} else {
-	    return wantarray ? @{$result->result} : $result->result->[0];
-	}
-    } else {
-        Bio::KBase::Exceptions::HTTP->throw(error => "Error invoking method lookup_globus_user",
-					    status_line => $self->{client}->status_line,
-					    method_name => 'lookup_globus_user',
-				       );
-    }
-}
- 
   
 sub status
 {
@@ -732,16 +640,16 @@ sub version {
             Bio::KBase::Exceptions::JSONRPC->throw(
                 error => $result->error_message,
                 code => $result->content->{code},
-                method_name => 'lookup_globus_user',
+                method_name => 'update_user_profile',
             );
         } else {
             return wantarray ? @{$result->result} : $result->result->[0];
         }
     } else {
         Bio::KBase::Exceptions::HTTP->throw(
-            error => "Error invoking method lookup_globus_user",
+            error => "Error invoking method update_user_profile",
             status_line => $self->{client}->status_line,
-            method_name => 'lookup_globus_user',
+            method_name => 'update_user_profile',
         );
     }
 }
@@ -979,40 +887,6 @@ profile has a value which is an UserProfile.UserProfile
 
 a reference to a hash where the following keys are defined:
 profile has a value which is an UserProfile.UserProfile
-
-
-=end text
-
-=back
-
-
-
-=head2 GlobusUser
-
-=over 4
-
-
-
-=item Definition
-
-=begin html
-
-<pre>
-a reference to a hash where the following keys are defined:
-email has a value which is a string
-fullName has a value which is a string
-userName has a value which is a string
-
-</pre>
-
-=end html
-
-=begin text
-
-a reference to a hash where the following keys are defined:
-email has a value which is a string
-fullName has a value which is a string
-userName has a value which is a string
 
 
 =end text

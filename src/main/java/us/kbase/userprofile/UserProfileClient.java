@@ -292,23 +292,6 @@ public class UserProfileClient {
         caller.jsonrpcCall("UserProfile.update_user_profile", args, retType, false, true, jsonRpcContext, this.serviceVersion);
     }
 
-    /**
-     * <p>Original spec-file function name: lookup_globus_user</p>
-     * <pre>
-     * </pre>
-     * @param   usernames   instance of list of original type "username"
-     * @return   parameter "users" of mapping from original type "username" to type {@link us.kbase.userprofile.GlobusUser GlobusUser}
-     * @throws IOException if an IO exception occurs
-     * @throws JsonClientException if a JSON RPC exception occurs
-     */
-    public Map<String,GlobusUser> lookupGlobusUser(List<String> usernames, RpcContext... jsonRpcContext) throws IOException, JsonClientException {
-        List<Object> args = new ArrayList<Object>();
-        args.add(usernames);
-        TypeReference<List<Map<String,GlobusUser>>> retType = new TypeReference<List<Map<String,GlobusUser>>>() {};
-        List<Map<String,GlobusUser>> res = caller.jsonrpcCall("UserProfile.lookup_globus_user", args, retType, true, true, jsonRpcContext, this.serviceVersion);
-        return res.get(0);
-    }
-
     public Map<String, Object> status(RpcContext... jsonRpcContext) throws IOException, JsonClientException {
         List<Object> args = new ArrayList<Object>();
         TypeReference<List<Map<String, Object>>> retType = new TypeReference<List<Map<String, Object>>>() {};
