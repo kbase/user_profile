@@ -28,7 +28,7 @@ public class UserProfileServer extends JsonServerServlet {
     private static final String gitCommitHash = "8a56e04b45d01c27c45c65dd80f62c5b4dde885c";
 
     //BEGIN_CLASS_HEADER
-    public static final String VERSION = "0.2.2";
+    public static final String VERSION = "0.3.0";
     
     public static final String SYS_PROP_KB_DEPLOYMENT_CONFIG = "KB_DEPLOYMENT_CONFIG";
     public static final String SERVICE_DEPLOYMENT_NAME = "UserProfile";
@@ -38,9 +38,6 @@ public class UserProfileServer extends JsonServerServlet {
     public static final String            CFG_MONGO_USER = "mongodb-user";
     public static final String            CFG_MONGO_PSWD = "mongodb-pwd";
     public static final String                 CFG_ADMIN = "admin";
-    public static final String CFG_PROP_AUTH_SERVICE_URL = "auth-service-url";
-    public static final String       CFG_PROP_GLOBUS_URL = "globus-url";
-    public static final String    CFG_PROP_AUTH_INSECURE = "auth-service-url-allow-insecure";
 
     private static Throwable configError = null;
     private static Map<String, String> config = null;
@@ -71,13 +68,12 @@ public class UserProfileServer extends JsonServerServlet {
 	}
 	private String getConfig(String configName) {
     	String ret = config().get(configName);
-    	if (ret == null)
+    	if (ret == null || ret.trim().isEmpty())
     		throw new IllegalStateException("Parameter " + configName + " is not defined in configuration");
     	return ret;
     }
 
 	private final MongoController db;
-    private final boolean authAllowInsecure;
     //END_CLASS_HEADER
 
     public UserProfileServer() throws Exception {
@@ -88,12 +84,6 @@ public class UserProfileServer extends JsonServerServlet {
         System.out.println(UserProfileServer.class.getName() + ": " + CFG_MONGO_DB +" = " + getConfig(CFG_MONGO_DB));
         System.out.println(UserProfileServer.class.getName() + ": " + CFG_ADMIN +" = " + getConfig(CFG_ADMIN));
         
-        String authAllowInsecureString = config().get(CFG_PROP_AUTH_INSECURE);
-        System.out.print(UserProfileServer.class.getName() + ": " + CFG_PROP_AUTH_INSECURE +" = " + 
-                                (authAllowInsecureString == null ? "<not-set>" : authAllowInsecureString));
-        this.authAllowInsecure = "true".equals(authAllowInsecureString);
-        System.out.println(" [flag interpreted to be:"+this.authAllowInsecure + "]");
-
         String mongoUser = ""; boolean useMongoAuth = true;
         try{
         	mongoUser = getConfig(CFG_MONGO_USER);
