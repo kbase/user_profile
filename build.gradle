@@ -8,6 +8,9 @@ plugins {
 	id 'jacoco'
 }
 
+var VER_AUTH2_CLIENT = "0.5.0"
+var VER_JAVA_COMMON = "0.3.0"
+
 var DEFAULT_URL = "https://ci.kbase.us/services/user_profile/rpc"
 
 var LOC_UP_SPEC = "$rootDir/UserProfile.spec"
@@ -15,6 +18,14 @@ var LOC_DOC_HTML = "$rootDir/docshtml"
 
 repositories {
 	mavenCentral()
+	maven {
+		name = "JitPack" 
+		url = 'https://jitpack.io'
+	}
+	maven {
+		name = "Clojars"
+		url = "https://repo.clojars.org/"
+	}
 }
 compileJava {
 	// TODO BUILD remove when we no longer support java 8, use `options.release = 11` if needed
@@ -27,23 +38,17 @@ javadoc {
 	 * building the client javadocs. If we ever need the full javadocs make a new task for the
 	 * client java docs
 	 */
-	// TODO DOCS currently java-common and auth links don't work. ROI for fixing them is low.
 	options {
 		// I don't know why this isn't working, but it's not worth spending time on right now
 		links "https://docs.oracle.com/javase/8/docs/api/"
+		links "https://javadoc.jitpack.io/com/github/kbase/auth2_client_java/$VER_AUTH2_CLIENT/javadoc/"
+		links "https://javadoc.jitpack.io/com/github/kbase/java_common/$VER_JAVA_COMMON/javadoc/"
 	}
 	exclude "**/userprofile/MongoController.java"
 	exclude "**/userprofile/UserProfileServer.java"
 }
 
 test {
-	/* 
-	 * TODO TEST Figure out why tests fail without this and remove. Might have something to do
-	 * with the stfuLoggers() call in many of the tests, might kill logging for tests that
-	 * require it
-	 * Although it seems to make Mongo start up correctly as well which is odd
-	 */
-	forkEvery = 1
 	systemProperty "test.cfg", "./test.cfg"
 	testLogging {
 		exceptionFormat = 'full'
@@ -149,63 +154,22 @@ configurations {
 	testimpl.extendsFrom testImplementation
 }
 
-def fromURL = { url, name ->
-	File file = new File("$buildDir/download/${name}.jar")
-	file.parentFile.mkdirs()
-	if (!file.exists()) {
-		new URL(url).withInputStream { downloadStream ->
-			file.withOutputStream { fileOut ->
-				fileOut << downloadStream
-			}
-		}
-	}
-	files(file.absolutePath)
-}
-
 dependencies {
 
-	// ### General application dependencies ###
-
-
-	implementation fromURL(
-		'https://github.com/kbase/jars/raw/master/lib/jars/kbase/auth/kbase-auth-0.4.4.jar',
-		'kbase-auth-0.4.4'
-	)
 	implementation 'org.ini4j:ini4j:0.5.2'
 	implementation 'com.fasterxml.jackson.core:jackson-annotations:2.2.3'
 	implementation 'com.fasterxml.jackson.core:jackson-databind:2.2.3'
-	implementation 'org.mongodb:mongo-java-driver:3.10.1'
-
-	// ###
-	// Server dependencies, specifically for java_common JsonServerServlet and
-	// NarrativeMethodServer
-	// ###
-	
-	implementation fromURL(
-		'https://github.com/kbase/jars/raw/master/lib/jars/kbase/common/kbase-common-0.0.24.jar',
-		'kbase-common-0.0.24'
-	)
-	implementation 'ch.qos.logback:logback-classic:1.1.2'
-	implementation 'org.slf4j:slf4j-api:1.7.25'
-	// TODO DEPS Need to rework the java common logger to not use syslog4j at all since it's abandonware
-	// and has a ton of CVEs, even in the newer versions.
-	implementation fromURL(
-		'https://github.com/kbase/jars/raw/master/lib/jars/syslog4j/syslog4j-0.9.46.jar',
-		'syslog4j-0.9.46'
-	)
+	implementation "com.github.kbase:java_common:$VER_JAVA_COMMON"
+	implementation "com.github.kbase:auth2_client_java:$VER_AUTH2_CLIENT"
 	implementation 'javax.annotation:javax.annotation-api:1.2'
 	implementation 'javax.servlet:servlet-api:2.5'
-	// joda-time is required for kbase-common and syslog4j
-	implementation 'joda-time:joda-time:2.2'
-	// this is OOOOOOLD. But that probably means updating java_common
-	implementation 'org.eclipse.jetty.aggregate:jetty-all:7.0.0.v20091005'
-	// needed for syslog4j
-	implementation 'net.java.dev.jna:jna:3.4.0'
-	
-	// ### Test ###
-	
+	implementation 'org.mongodb:mongo-java-driver:3.10.1'
+
 	testImplementation 'junit:junit:4.9'
-	implementation 'commons-io:commons-io:2.4'
+	testImplementation 'commons-io:commons-io:2.4'
+	testImplementation('com.github.kbase:java_test_utilities:0.1.0') {
+		exclude group: 'com.fasterxml.jackson.core'  // upgrading breaks stuff
+	}
 	
 }
 
