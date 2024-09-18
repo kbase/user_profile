@@ -1,6 +1,7 @@
 package us.kbase.userprofile;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map.Entry;
@@ -10,30 +11,30 @@ import java.util.Map.Entry;
 /*
 import org.apache.commons.lang3.StringUtils;*/
 
+import com.mongodb.client.FindIterable;
+import com.mongodb.client.MongoClient;
+import com.mongodb.client.MongoClients;
+import com.mongodb.client.MongoCollection;
+import com.mongodb.client.MongoDatabase;
+import com.mongodb.client.model.IndexOptions;
 import us.kbase.common.service.UObject;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.mongodb.BasicDBObject;
-import com.mongodb.DB;
-import com.mongodb.DBCollection;
-import com.mongodb.DBCursor;
-import com.mongodb.DBObject;
-import com.mongodb.MongoClient;
-import com.mongodb.MongoClientOptions;
+import com.mongodb.MongoClientSettings;
 import com.mongodb.MongoCredential;
 import com.mongodb.ServerAddress;
-import com.mongodb.util.JSON;
+import org.bson.Document;
 
 public class MongoController {
 
 	private static final String COL_PROFILES = "profiles";
 
-	private final DBCollection profiles;
+	private final MongoCollection<Document> profiles;
 	//private final MongoCollection jProfiles;
 	
 	public MongoController(final String host, final String database) {
 		
-		final DB db = getDB(host, database, null, null);
+		final MongoDatabase db = getDB(host, database, null, null);
 		profiles = db.getCollection(COL_PROFILES);
 		//jProfiles = jongo.getCollection(COL_PROFILES);
 		ensureIndex();
@@ -53,77 +54,75 @@ public class MongoController {
 	}
 	
 	public MongoController(final String host, final String database,
-			final String mongoUser, final String mongoPswd) {
-		final DB db = getDB(host, database, mongoUser, mongoPswd);
+						   final String mongoUser, final String mongoPswd) {
+		final MongoDatabase db = getDB(host, database, mongoUser, mongoPswd);
 		profiles = db.getCollection(COL_PROFILES);
 		//jProfiles = jongo.getCollection(COL_PROFILES);
 		ensureIndex();
 	}
 	
-	private DB getDB(final String host, final String db, final String user, final String pwd) {
+	private MongoDatabase getDB(final String host, final String db, final String user, final String pwd) {
 		// TODO update to non-deprecated APIs
+		final MongoClientSettings.Builder mongoBuilder = MongoClientSettings.builder().applyToClusterSettings(
+				builder -> builder.hosts(Arrays.asList(new ServerAddress(host))));
 		final MongoClient cli;
 		if (user != null) {
 			final MongoCredential creds = MongoCredential.createCredential(
 					user, db, pwd.toCharArray());
 			// unclear if and when it's safe to clear the password
-			cli = new MongoClient(new ServerAddress(host), creds,
-					MongoClientOptions.builder().build());
+			cli = MongoClients.create(mongoBuilder.credential(creds).build());
 		} else {
-			cli = new MongoClient(new ServerAddress(host));
+			cli = MongoClients.create(mongoBuilder.build());
 		}
-		return cli.getDB(db);
+		return cli.getDatabase(db);
 	}
-	
-	
+
+
 	public List<User> filterUsers(String filter) {
+		List<User> users = new ArrayList<>();
 		
 		if(filter.trim().isEmpty()) {
 			//return all
-			DBCursor cursor = profiles.find(new BasicDBObject(),
-							new BasicDBObject().append("user",1));
-			List<User> users = new ArrayList<User>(cursor.count());
-			while(cursor.hasNext()) {
+			FindIterable<Document> docs = profiles.find(new Document()).projection(new Document("user", 1));
+			for (Document document : docs) {
+				Document d = document.get("user", Document.class);
+				if (d == null || !d.containsKey("username")) continue;
 				User u = new User();
-				DBObject d = (DBObject)cursor.next().get("user");
-				if(!d.containsField("username")) continue;
 				u.setUsername(d.get("username").toString());
-				if(d.containsField("realname")) {
-					if(d.get("realname")!=null) {
+				if (d.containsKey("realname")) {
+					if (d.get("realname") != null) {
 						u.setRealname(d.get("realname").toString());
-					}
-				}
-				if(d.containsField("thumbnail")) {
-					if(d.get("thumbnail")!=null) {
-						u.setThumbnail(d.get("thumbnail").toString());
-					}
-				}
-				//System.out.println(u);
-				users.add(u);
-			}
+                    }
+                }
+				if (d.containsKey("thumbnail")) {
+					if (d.get("thumbnail") != null) {
+                        u.setThumbnail(d.get("thumbnail").toString());
+                    }
+                }
+                //System.out.println(u);
+                users.add(u);
+            }
 			return users;
 		}
 		
 		// for now we do text search here instead of on the DB side
 		// todo: see if we can install a text search index
-		DBCursor cursor = profiles.find(new BasicDBObject(),
-				new BasicDBObject().append("user",1));
-		List<User> users = new ArrayList<User>(cursor.count());
+		FindIterable<Document> docs = profiles.find(new Document()).projection(new Document("user", 1));
 		String [] terms = filter.split("\\s+");
-		while(cursor.hasNext()) {
+		for(Document document : docs) {
+			Document d = document.get("user", Document.class);
+			if(d == null || !d.containsKey("username")) continue;
 			User u = new User();
-			DBObject d = (DBObject)cursor.next().get("user");
-			if(!d.containsField("username")) continue;
 			String uname = d.get("username").toString();
 			u.setUsername(uname);
 			boolean add = true;
-			for(int i=0; i<terms.length; i++) {
+			for(int i = 0; i < terms.length; i++) {
 				if(!uname.toLowerCase().contains(terms[i].toLowerCase())){
 					add = false; break;
 				}
 			}
 			
-			if(d.containsField("realname")) {
+			if(d.containsKey("realname")) {
 				if(d.get("realname")!=null) {
 					String rname = d.get("realname").toString();
 					u.setRealname(rname);
@@ -138,7 +137,7 @@ public class MongoController {
 					}
 				}
 			}
-			if(d.containsField("thumbnail")) {
+			if(d.containsKey("thumbnail")) {
 				if(d.get("thumbnail")!=null) {
 					u.setThumbnail(d.get("thumbnail").toString());
 				}
@@ -154,36 +153,33 @@ public class MongoController {
 	}
 	
 	private void ensureIndex() {
-		DBObject userUnique = new BasicDBObject("user.username",1);
+		Document userUnique = new Document("user.username",1);
 		//DBObject userText = new BasicDBObject("user.username","text");
-		DBObject unique = new BasicDBObject("unique",1);
+		IndexOptions uniqueOptions = new IndexOptions().unique(true);
 		//DBObject nameText = new BasicDBObject("user.realname","text");
-		profiles.createIndex(userUnique, unique);
+		profiles.createIndex(userUnique, uniqueOptions);
 		//profiles.ensureIndex(userText);
 		//profiles.ensureIndex(nameText);
 	}
 	
 	
 	public boolean exists(String username) {
-		DBObject query = new BasicDBObject("user.username",username);
-		if(profiles.findOne(query, new BasicDBObject())==null) {
-			return false;
-		}
-		return true;
-	}
+		Document query = new Document("user.username", username);
+		return profiles.find(query).first() != null;
+    }
 	
 	
 	public UserProfile getProfile(String username) {
-		DBObject query = new BasicDBObject("user.username",username);
-		DBObject result = profiles.findOne(query);
-		if(result==null) return null;
-		DBObject dbUser = ((DBObject)result.get("user"));
+		Document query = new Document("user.username", username);
+		Document result = profiles.find(query).first();
+		if(result == null) return null;
+		Document dbUser = result.get("user", Document.class);
 		User user = new User().withUsername(dbUser.get("username").toString());
-		if(dbUser.get("realname")!=null) user.setRealname(dbUser.get("realname").toString());
-		if(dbUser.get("thumbnail")!=null) user.setRealname(dbUser.get("thumbnail").toString());
+		if(dbUser.get("realname") != null) user.setRealname(dbUser.get("realname").toString());
+		if(dbUser.get("thumbnail") != null) user.setRealname(dbUser.get("thumbnail").toString());
 		
 		UserProfile up = new UserProfile().withUser(user);
-		if(result.get("profile")!=null) {
+		if(result.get("profile") != null) {
 			//System.out.println(result.get("profile").toString());
 			//gotta be a better way to do this
 			up.setProfile(UObject.fromJsonString(result.get("profile").toString()));
@@ -195,42 +191,45 @@ public class MongoController {
 	// assume UserProfile is validated
 		public void setProfile(UserProfile up) {
 			if(exists(up.getUser().getUsername())) {
-				DBObject user = new BasicDBObject("username",up.getUser().getUsername());
-				if(up.getUser().getRealname()!=null)
+				Document user = new Document("username", up.getUser().getUsername());
+
+				if(up.getUser().getRealname() != null) {
 					user.put("realname", up.getUser().getRealname());
-				if(up.getUser().getThumbnail()!=null)
+				}
+				if(up.getUser().getThumbnail() != null) {
 					user.put("thumbnail", up.getUser().getThumbnail());
+				}
 				
-				DBObject replacement = new BasicDBObject("user",user);
-				if(up.getProfile()!=null) {
-					if(up.getProfile().asJsonNode().isObject())
-						replacement.put("profile", JSON.parse(up.getProfile().asJsonNode().toString()));
-					else {
+				Document replacement = new Document("user", user);
+				if(up.getProfile() != null) {
+					if(up.getProfile().asJsonNode().isObject()) {
+						replacement.put("profile", Document.parse(up.getProfile().asJsonNode().toString()));
+					} else {
 						throw new RuntimeException("Profile must be an object if defined.");
 					}
 				} else {
 					replacement.put("profile", null);
 				}
 				System.out.println(replacement);
-				profiles.update(
-						new BasicDBObject("user.username",up.getUser().getUsername()),
-						new BasicDBObject("$set",replacement));
+				profiles.updateOne(
+						new Document("user.username", up.getUser().getUsername()),
+						new Document("$set", replacement));
 			} else {
-				DBObject user = new BasicDBObject("username",up.getUser().getUsername())
+				Document user = new Document("username", up.getUser().getUsername())
 									.append("realname", up.getUser().getRealname())
 									.append("thumbnail", up.getUser().getThumbnail());
-				
-				DBObject profile = new BasicDBObject("user",user);
-				if(up.getProfile()!=null) {
-					if(up.getProfile().asJsonNode().isObject())
-						profile.put("profile", JSON.parse(up.getProfile().asJsonNode().toString()));
-					else {
+
+				Document profile = new Document("user", user);
+				if (up.getProfile() != null) {
+					if (up.getProfile().asJsonNode().isObject()) {
+						profile.put("profile", Document.parse(up.getProfile().asJsonNode().toString()));
+					} else {
 						throw new RuntimeException("Profile must be an object if defined.");
 					}
 				} else {
 					profile.put("profile", null);
 				}
-				profiles.insert(profile);
+				profiles.insertOne(profile);
 			}
 		}
 	
@@ -238,46 +237,49 @@ public class MongoController {
 	// assume UserProfile is validated
 	public void updateProfile(UserProfile up) {
 		if(exists(up.getUser().getUsername())) {
-			DBObject user = new BasicDBObject("username",up.getUser().getUsername());
-			if(up.getUser().getRealname()!=null)
+			Document user = new Document("username", up.getUser().getUsername());
+
+			if(up.getUser().getRealname() != null) {
 				user.put("realname", up.getUser().getRealname());
-			if(up.getUser().getThumbnail()!=null)
+			}
+			if(up.getUser().getThumbnail() != null) {
 				user.put("thumbnail", up.getUser().getThumbnail());
+			}
 			
-			DBObject update = new BasicDBObject("user",user);
-			if(up.getProfile()!=null) {
+			Document update = new Document("user", user);
+			if(up.getProfile() != null) {
 				JsonNode profileNode = up.getProfile().asJsonNode();
 				System.out.println(profileNode);
-				if( profileNode.isObject() ) {
+				if(profileNode.isObject()) {
 					Iterator<Entry<String, JsonNode>> fields = profileNode.fields();
 					while(fields.hasNext()) {
-						Entry<String,JsonNode> e= fields.next();
-						update.put("profile."+e.getKey(), JSON.parse(e.getValue().toString()));
+						Entry<String,JsonNode> e = fields.next();
+						update.put("profile." + e.getKey(), Document.parse(e.getValue().toString()));
 					}
 				} else {
 					throw new RuntimeException("Profile must be an object if defined.");
 				}
 			}
 			System.out.println(update);
-			profiles.update(
-					new BasicDBObject("user.username",up.getUser().getUsername()),
-					new BasicDBObject("$set",update));
+			profiles.updateOne(
+					new Document("user.username",up.getUser().getUsername()),
+					new Document("$set",update));
 		} else {
-			DBObject user = new BasicDBObject("username",up.getUser().getUsername())
+			Document user = new Document("username", up.getUser().getUsername())
 								.append("realname", up.getUser().getRealname())
 								.append("thumbnail", up.getUser().getThumbnail());
-			
-			DBObject profile = new BasicDBObject("user",user);
-			if(up.getProfile()!=null) {
-				if(up.getProfile().asJsonNode().isObject())
-					profile.put("profile", JSON.parse(up.getProfile().asJsonNode().toString()));
-				else {
+
+			Document profile = new Document("user", user);
+			if(up.getProfile() != null) {
+				if(up.getProfile().asJsonNode().isObject()) {
+					profile.put("profile", Document.parse(up.getProfile().asJsonNode().toString()));
+				} else {
 					throw new RuntimeException("Profile must be an object if defined.");
 				}
 			} else {
 				profile.put("profile", null);
 			}
-			profiles.insert(profile);
+			profiles.insertOne(profile);
 		}
 	}
 	
