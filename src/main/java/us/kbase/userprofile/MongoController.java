@@ -203,7 +203,7 @@ public class MongoController {
 				Document replacement = new Document("user", user);
 				if(up.getProfile() != null) {
 					if(up.getProfile().asJsonNode().isObject()) {
-						replacement.put("profile", Document.parse(up.getProfile().asJsonNode().toString()));
+						replacement.put("profile", Document.parse(up.getProfile().asJsonNode().toString()).toJson());
 					} else {
 						throw new RuntimeException("Profile must be an object if defined.");
 					}
@@ -222,7 +222,7 @@ public class MongoController {
 				Document profile = new Document("user", user);
 				if (up.getProfile() != null) {
 					if (up.getProfile().asJsonNode().isObject()) {
-						profile.put("profile", Document.parse(up.getProfile().asJsonNode().toString()));
+						profile.put("profile", Document.parse(up.getProfile().asJsonNode().toString()).toJson());
 					} else {
 						throw new RuntimeException("Profile must be an object if defined.");
 					}
@@ -254,7 +254,7 @@ public class MongoController {
 					Iterator<Entry<String, JsonNode>> fields = profileNode.fields();
 					while(fields.hasNext()) {
 						Entry<String,JsonNode> e = fields.next();
-						update.put("profile." + e.getKey(), Document.parse(e.getValue().toString()));
+						update.put("profile." + e.getKey(), Document.parse(e.getValue().toString()).toJson());
 					}
 				} else {
 					throw new RuntimeException("Profile must be an object if defined.");
@@ -272,7 +272,7 @@ public class MongoController {
 			Document profile = new Document("user", user);
 			if(up.getProfile() != null) {
 				if(up.getProfile().asJsonNode().isObject()) {
-					profile.put("profile", Document.parse(up.getProfile().asJsonNode().toString()));
+					profile.put("profile", Document.parse(up.getProfile().asJsonNode().toString()).toJson());
 				} else {
 					throw new RuntimeException("Profile must be an object if defined.");
 				}
