@@ -23,7 +23,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.mongodb.MongoClientSettings;
 import com.mongodb.MongoCredential;
 import com.mongodb.ServerAddress;
-import org.bson.BsonDocument;
 import org.bson.Document;
 
 public class MongoController {
@@ -204,7 +203,8 @@ public class MongoController {
 				Document replacement = new Document("user", user);
 				if(up.getProfile() != null) {
 					if(up.getProfile().asJsonNode().isObject()) {
-						replacement.put("profile", BsonDocument.parse(up.getProfile().asJsonNode().toString()));
+						System.out.println("jsonString1: " + up.getProfile().asJsonNode().toString());
+						replacement.put("profile", Document.parse(up.getProfile().asJsonNode().toString()));
 					} else {
 						throw new RuntimeException("Profile must be an object if defined.");
 					}
@@ -223,7 +223,8 @@ public class MongoController {
 				Document profile = new Document("user", user);
 				if (up.getProfile() != null) {
 					if (up.getProfile().asJsonNode().isObject()) {
-						profile.put("profile", BsonDocument.parse(up.getProfile().asJsonNode().toString()));
+						System.out.println("jsonString2: " + up.getProfile().asJsonNode().toString());
+						profile.put("profile", Document.parse(up.getProfile().asJsonNode().toString()));
 					} else {
 						throw new RuntimeException("Profile must be an object if defined.");
 					}
@@ -255,7 +256,7 @@ public class MongoController {
 					Iterator<Entry<String, JsonNode>> fields = profileNode.fields();
 					while(fields.hasNext()) {
 						Entry<String,JsonNode> e = fields.next();
-						update.put("profile." + e.getKey(), BsonDocument.parse(e.getValue().toString()));
+						update.put("profile." + e.getKey(), Document.parse(e.getValue().toString()));
 					}
 				} else {
 					throw new RuntimeException("Profile must be an object if defined.");
@@ -273,7 +274,7 @@ public class MongoController {
 			Document profile = new Document("user", user);
 			if(up.getProfile() != null) {
 				if(up.getProfile().asJsonNode().isObject()) {
-					profile.put("profile", BsonDocument.parse(up.getProfile().asJsonNode().toString()));
+					profile.put("profile", Document.parse(up.getProfile().asJsonNode().toString()));
 				} else {
 					throw new RuntimeException("Profile must be an object if defined.");
 				}
