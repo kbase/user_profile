@@ -179,10 +179,11 @@ public class MongoController {
 		if(dbUser.get("thumbnail") != null) user.setRealname(dbUser.get("thumbnail").toString());
 		
 		UserProfile up = new UserProfile().withUser(user);
-		if(result.get("profile") != null) {
+		Document profile = result.get("profile", Document.class);
+		if(profile != null) {
 			//System.out.println(result.get("profile").toString());
 			//gotta be a better way to do this
-			up.setProfile(UObject.fromJsonString(result.get("profile").toString()));
+			up.setProfile(UObject.fromJsonString(profile.toJson()));
 		}
 		return up;
 	}
