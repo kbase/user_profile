@@ -2,9 +2,7 @@ package us.kbase.userprofile;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Map.Entry;
 
 
 
@@ -161,14 +159,34 @@ public class MongoController {
 		//profiles.ensureIndex(userText);
 		//profiles.ensureIndex(nameText);
 	}
-	
-	
+
 	public boolean exists(String username) {
-		Document query = new Document("user.username", username);
-		return profiles.find(query).first() != null;
+		return findProfileByUsername(username) != null;
     }
-	
-	
+
+	private Document findProfileByUsername(String username) {
+		Document query = new Document("user.username", username);
+		return profiles.find(query).first();
+	}
+
+	private Document createMergedProfile(String username, JsonNode profileNode) {
+		Document oldDoc = findProfileByUsername(username);
+		Document mergedProfile;
+
+		if (oldDoc.containsKey("profile") && oldDoc.get("profile") != null) {
+			mergedProfile = new Document(oldDoc.get("profile", Document.class));
+		} else {
+			mergedProfile = new Document();
+		}
+
+		Document newDoc = Document.parse(profileNode.toString());
+		for (String key : newDoc.keySet()) {
+			mergedProfile.append(key, newDoc.get(key));
+		}
+
+		return mergedProfile;
+	}
+
 	public UserProfile getProfile(String username) {
 		Document query = new Document("user.username", username);
 		Document result = profiles.find(query).first();
@@ -176,7 +194,7 @@ public class MongoController {
 		Document dbUser = result.get("user", Document.class);
 		User user = new User().withUsername(dbUser.get("username").toString());
 		if(dbUser.get("realname") != null) user.setRealname(dbUser.get("realname").toString());
-		if(dbUser.get("thumbnail") != null) user.setRealname(dbUser.get("thumbnail").toString());
+		if(dbUser.get("thumbnail") != null) user.setThumbnail(dbUser.get("thumbnail").toString());
 		
 		UserProfile up = new UserProfile().withUser(user);
 		Document profile = result.get("profile", Document.class);
@@ -204,7 +222,6 @@ public class MongoController {
 				Document replacement = new Document("user", user);
 				if(up.getProfile() != null) {
 					if(up.getProfile().asJsonNode().isObject()) {
-						System.out.println("jsonString1: " + up.getProfile().asJsonNode().toString());
 						replacement.put("profile", Document.parse(up.getProfile().asJsonNode().toString()));
 					} else {
 						throw new RuntimeException("Profile must be an object if defined.");
@@ -224,7 +241,6 @@ public class MongoController {
 				Document profile = new Document("user", user);
 				if (up.getProfile() != null) {
 					if (up.getProfile().asJsonNode().isObject()) {
-						System.out.println("jsonString2: " + up.getProfile().asJsonNode().toString());
 						profile.put("profile", Document.parse(up.getProfile().asJsonNode().toString()));
 					} else {
 						throw new RuntimeException("Profile must be an object if defined.");
@@ -253,20 +269,20 @@ public class MongoController {
 			if(up.getProfile() != null) {
 				JsonNode profileNode = up.getProfile().asJsonNode();
 				System.out.println(profileNode);
+
 				if(profileNode.isObject()) {
-					Iterator<Entry<String, JsonNode>> fields = profileNode.fields();
-					while(fields.hasNext()) {
-						Entry<String,JsonNode> e = fields.next();
-						update.put("profile." + e.getKey(), Document.parse(e.getValue().toString()));
-					}
+					Document mergedProfile = createMergedProfile(up.getUser().getUsername(), profileNode);
+					update.put("profile", mergedProfile);
 				} else {
 					throw new RuntimeException("Profile must be an object if defined.");
 				}
 			}
+
 			System.out.println(update);
 			profiles.updateOne(
-					new Document("user.username",up.getUser().getUsername()),
-					new Document("$set",update));
+					new Document("user.username", up.getUser().getUsername()),
+					new Document("$set", update));
+
 		} else {
 			Document user = new Document("username", up.getUser().getUsername())
 								.append("realname", up.getUser().getRealname())
