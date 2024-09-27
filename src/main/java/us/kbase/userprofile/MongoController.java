@@ -87,19 +87,16 @@ public class MongoController {
 				if (d == null || !d.containsKey("username")) continue;
 				User u = new User();
 				u.setUsername(d.get("username").toString());
-				if (d.containsKey("realname")) {
-					if (d.get("realname") != null) {
-						u.setRealname(d.get("realname").toString());
-                    }
-                }
-				if (d.containsKey("thumbnail")) {
-					if (d.get("thumbnail") != null) {
-                        u.setThumbnail(d.get("thumbnail").toString());
-                    }
-                }
-                //System.out.println(u);
-                users.add(u);
-            }
+
+				if (d.containsKey("realname") && d.get("realname") != null) {
+					u.setRealname(d.get("realname").toString());
+				}
+				if (d.containsKey("thumbnail") && d.get("thumbnail") != null) {
+					u.setThumbnail(d.get("thumbnail").toString());
+				}
+
+				users.add(u);
+			}
 			return users;
 		}
 		
@@ -190,11 +187,17 @@ public class MongoController {
 	public UserProfile getProfile(String username) {
 		Document query = new Document("user.username", username);
 		Document result = profiles.find(query).first();
-		if(result == null) return null;
+		if(result == null) {
+			return null;
+		}
 		Document dbUser = result.get("user", Document.class);
 		User user = new User().withUsername(dbUser.get("username").toString());
-		if(dbUser.get("realname") != null) user.setRealname(dbUser.get("realname").toString());
-		if(dbUser.get("thumbnail") != null) user.setThumbnail(dbUser.get("thumbnail").toString());
+		if(dbUser.get("realname") != null) {
+			user.setRealname(dbUser.get("realname").toString());
+		}
+		if(dbUser.get("thumbnail") != null) {
+			user.setThumbnail(dbUser.get("thumbnail").toString());
+		}
 		
 		UserProfile up = new UserProfile().withUser(user);
 		Document profile = result.get("profile", Document.class);
