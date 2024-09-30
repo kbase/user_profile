@@ -84,6 +84,7 @@ public class FullServerTest {
 	public void testBasicPath() throws Exception {
 
 		List<UserProfile> profile = CLIENT.getUserProfile(Arrays.asList(USER1_NAME));
+		assertEquals(1, profile.size());
 		assertNull(profile.get(0));
 
 		// User1 creates a profile
@@ -123,10 +124,11 @@ public class FullServerTest {
 
 		// User1 adds a field to the profile
 		String jsonProfileUpdate = "{\"new_stuff\":\"yeah\"}";
-		UserProfile p3 = new UserProfile()
-								.withUser(new User()
-											.withUsername(USER1_NAME))
-								.withProfile(UObject.fromJsonString(jsonProfileUpdate));
+		UserProfile p3 = new UserProfile().withUser(new User()
+						.withUsername(USER1_NAME)
+						.withRealname("User One")
+						.withThumbnail("User One Thumbnail updated"))
+				.withProfile(UObject.fromJsonString(jsonProfileUpdate));
 		USR1_CLIENT.updateUserProfile(new SetUserProfileParams().withProfile(p3));
 
 		// Profile is updated as expected
@@ -134,6 +136,8 @@ public class FullServerTest {
 		assertEquals(1, profiles3.size());
 		UserProfile ret3 = profiles3.get(0);
 		assertEquals(USER1_NAME, ret3.getUser().getUsername());
+		assertEquals("User One", ret3.getUser().getRealname());
+		assertEquals("User One Thumbnail updated", ret3.getUser().getThumbnail());
 		assertEquals("yeah2", ret3.getProfile().asMap().get("stuff").asScalar());
 		assertEquals("yeah", ret3.getProfile().asMap().get("new_stuff").asScalar());
 
