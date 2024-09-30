@@ -87,6 +87,23 @@ public class FullServerTest {
 		assertEquals(1, profile.size());
 		assertNull(profile.get(0));
 
+		// Test the updateProfile function on a non-existent user
+		String nonExistProfile = "{\"test\":\"nonsense\"}";
+		UserProfile nonExistP = new UserProfile().withUser(new User()
+						.withUsername("not_exist")
+						.withRealname("real real name")
+						.withThumbnail("thumb thumb nail"))
+				.withProfile(UObject.fromJsonString(nonExistProfile));
+		USR1_CLIENT.updateUserProfile(new SetUserProfileParams().withProfile(nonExistP));
+
+		List<UserProfile> profiles0 = CLIENT.getUserProfile(Arrays.asList("not_exist"));
+		assertEquals(1, profiles0.size());
+		UserProfile ret0 = profiles0.get(0);
+		assertEquals("not_exist", ret0.getUser().getUsername());
+		assertEquals("real real name", ret0.getUser().getRealname());
+		assertEquals("thumb thumb nail", ret0.getUser().getThumbnail());
+		assertEquals("nonsense", ret0.getProfile().asMap().get("test").asScalar());
+
 		// User1 creates a profile
 		String jsonProfile1 = "{\"stuff\":\"yeah\"}";
 		UserProfile p = new UserProfile().withUser(new User()
