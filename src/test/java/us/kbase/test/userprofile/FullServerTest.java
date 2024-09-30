@@ -1,6 +1,8 @@
 package us.kbase.test.userprofile;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 import java.io.File;
 import java.lang.reflect.Field;
@@ -81,13 +83,16 @@ public class FullServerTest {
 	@Test
 	public void testBasicPath() throws Exception {
 
+		List<UserProfile> profile = CLIENT.getUserProfile(Arrays.asList(USER1_NAME));
+		assertNull(profile.get(0));
+
 		// User1 creates a profile
 		String jsonProfile1 = "{\"stuff\":\"yeah\"}";
-		UserProfile p = new UserProfile()
-								.withUser(new User()
-											.withUsername(USER1_NAME)
-											.withRealname("User One"))
-								.withProfile(UObject.fromJsonString(jsonProfile1));
+		UserProfile p = new UserProfile().withUser(new User()
+						.withUsername(USER1_NAME)
+						.withRealname("User One")
+						.withThumbnail("User One Thumbnail"))
+				.withProfile(UObject.fromJsonString(jsonProfile1));
 		USR1_CLIENT.setUserProfile(new SetUserProfileParams().withProfile(p));
 
 		// Profile is visible to an anonymous user
@@ -95,6 +100,8 @@ public class FullServerTest {
 		assertEquals(1, profiles.size());
 		UserProfile ret = profiles.get(0);
 		assertEquals(USER1_NAME, ret.getUser().getUsername());
+		assertEquals("User One", ret.getUser().getRealname());
+		assertEquals("User One Thumbnail", ret.getUser().getThumbnail());
 		assertEquals("yeah", ret.getProfile().asMap().get("stuff").asScalar());
 
 		// Admin updates profile
