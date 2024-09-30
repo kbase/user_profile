@@ -94,7 +94,7 @@ public class FullServerTest {
 						.withRealname("real real name")
 						.withThumbnail("thumb thumb nail"))
 				.withProfile(UObject.fromJsonString(nonExistProfile));
-		USR1_CLIENT.updateUserProfile(new SetUserProfileParams().withProfile(nonExistP));
+		ADMIN_CLIENT.updateUserProfile(new SetUserProfileParams().withProfile(nonExistP));
 
 		List<UserProfile> profiles0 = CLIENT.getUserProfile(Arrays.asList("not_exist"));
 		assertEquals(1, profiles0.size());
