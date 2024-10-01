@@ -167,13 +167,10 @@ public class MongoController {
 	}
 
 	private Document createMergedProfile(String username, JsonNode profileNode) {
+		Document mergedProfile = new Document();
 		Document oldDoc = findProfileByUsername(username);
-		Document mergedProfile;
-
 		if (oldDoc.containsKey("profile") && oldDoc.get("profile") != null) {
 			mergedProfile = new Document(oldDoc.get("profile", Document.class));
-		} else {
-			mergedProfile = new Document();
 		}
 
 		Document newDoc = Document.parse(profileNode.toString());
