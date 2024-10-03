@@ -28,39 +28,21 @@ public class MongoController {
 	private static final String COL_PROFILES = "profiles";
 
 	private final MongoCollection<Document> profiles;
-	//private final MongoCollection jProfiles;
 	
 	public MongoController(final String host, final String database) {
-		
 		final MongoDatabase db = getDB(host, database, null, null);
 		profiles = db.getCollection(COL_PROFILES);
-		//jProfiles = jongo.getCollection(COL_PROFILES);
 		ensureIndex();
-		/*System.out.println(getProfile("mike3"));
-		
-		User u = new User().withUsername("mike3").withRealname("oh yeah");
-		Map<String,String> m = new HashMap<String,String>();
-		m.put("email", "test@test.com");
-		//m.put("stuff", "things");
-		UserProfile up = new UserProfile().withUser(u)
-							.withProfile(new UObject(m));
-		setProfile(up);
-		System.out.println(getProfile("mike2"));
-		
-		System.out.println("filtering...");
-		filterUsers("ik");*/
 	}
 	
 	public MongoController(final String host, final String database,
 						   final String mongoUser, final String mongoPswd) {
 		final MongoDatabase db = getDB(host, database, mongoUser, mongoPswd);
 		profiles = db.getCollection(COL_PROFILES);
-		//jProfiles = jongo.getCollection(COL_PROFILES);
 		ensureIndex();
 	}
 	
 	private MongoDatabase getDB(final String host, final String db, final String user, final String pwd) {
-		// TODO update to non-deprecated APIs
 		final MongoClientSettings.Builder mongoBuilder = MongoClientSettings.builder().applyToClusterSettings(
 				builder -> builder.hosts(Arrays.asList(new ServerAddress(host))));
 		final MongoClient cli;
@@ -84,14 +66,16 @@ public class MongoController {
 			FindIterable<Document> docs = profiles.find(new Document()).projection(new Document("user", 1));
 			for (Document document : docs) {
 				Document d = document.get("user", Document.class);
-				if (d == null || !d.containsKey("username")) continue;
+				if (!d.containsKey("username")) {
+					continue;
+				}
 				User u = new User();
 				u.setUsername(d.get("username").toString());
 
-				if (d.containsKey("realname") && d.get("realname") != null) {
+				if (d.get("realname") != null) {
 					u.setRealname(d.get("realname").toString());
 				}
-				if (d.containsKey("thumbnail") && d.get("thumbnail") != null) {
+				if (d.get("thumbnail") != null) {
 					u.setThumbnail(d.get("thumbnail").toString());
 				}
 
@@ -106,7 +90,9 @@ public class MongoController {
 		String [] terms = filter.split("\\s+");
 		for(Document document : docs) {
 			Document d = document.get("user", Document.class);
-			if(d == null || !d.containsKey("username")) continue;
+			if(!d.containsKey("username")) {
+				continue;
+			}
 			User u = new User();
 			String uname = d.get("username").toString();
 			u.setUsername(uname);
@@ -149,12 +135,8 @@ public class MongoController {
 	
 	private void ensureIndex() {
 		Document userUnique = new Document("user.username",1);
-		//DBObject userText = new BasicDBObject("user.username","text");
 		IndexOptions uniqueOptions = new IndexOptions().unique(true);
-		//DBObject nameText = new BasicDBObject("user.realname","text");
 		profiles.createIndex(userUnique, uniqueOptions);
-		//profiles.ensureIndex(userText);
-		//profiles.ensureIndex(nameText);
 	}
 
 	public boolean exists(String username) {
@@ -166,20 +148,6 @@ public class MongoController {
 		return profiles.find(query).first();
 	}
 
-	private Document createMergedProfile(String username, JsonNode profileNode) {
-		Document mergedProfile = new Document();
-		Document oldDoc = findProfileByUsername(username);
-		if (oldDoc.containsKey("profile") && oldDoc.get("profile") != null) {
-			mergedProfile = new Document(oldDoc.get("profile", Document.class));
-		}
-
-		Document newDoc = Document.parse(profileNode.toString());
-		for (String key : newDoc.keySet()) {
-			mergedProfile.append(key, newDoc.get(key));
-		}
-
-		return mergedProfile;
-	}
 
 	public UserProfile getProfile(String username) {
 		Document query = new Document("user.username", username);
@@ -271,8 +239,8 @@ public class MongoController {
 				System.out.println(profileNode);
 
 				if(profileNode.isObject()) {
-					Document mergedProfile = createMergedProfile(up.getUser().getUsername(), profileNode);
-					update.put("profile", mergedProfile);
+					Document updateProfileFields = Document.parse(profileNode.toString());
+					update.put("profile", updateProfileFields);
 				} else {
 					throw new RuntimeException("Profile must be an object if defined.");
 				}

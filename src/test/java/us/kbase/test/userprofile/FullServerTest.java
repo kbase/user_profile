@@ -12,6 +12,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
+import com.google.common.collect.ImmutableMap;
 import org.apache.commons.io.FileUtils;
 import org.ini4j.Ini;
 import org.ini4j.Profile.Section;
@@ -93,7 +94,7 @@ public class FullServerTest {
 						.withUsername("not_exist")
 						.withRealname("real real name")
 						.withThumbnail("thumb thumb nail"))
-				.withProfile(UObject.fromJsonString(nonExistProfile));
+				.withProfile(new UObject(ImmutableMap.of("test", "nonsense")));
 		ADMIN_CLIENT.updateUserProfile(new SetUserProfileParams().withProfile(nonExistP));
 
 		List<UserProfile> profiles0 = CLIENT.getUserProfile(Arrays.asList("not_exist"));

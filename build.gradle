@@ -167,6 +167,7 @@ dependencies {
 	implementation 'org.mongodb:mongodb-driver-sync:4.11.1'
 	implementation 'org.mongodb:bson-record-codec:4.11.1'
 	implementation 'org.mongodb:bson:4.11.1'
+	implementation 'com.google.guava:guava:31.1-jre'
 
 	testImplementation 'junit:junit:4.9'
 	testImplementation 'commons-io:commons-io:2.4'
