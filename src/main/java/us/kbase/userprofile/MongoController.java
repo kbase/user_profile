@@ -2,7 +2,9 @@ package us.kbase.userprofile;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 
 
@@ -239,8 +241,11 @@ public class MongoController {
 				System.out.println(profileNode);
 
 				if(profileNode.isObject()) {
-					Document updateProfileFields = Document.parse(profileNode.toString());
-					update.put("profile", updateProfileFields);
+					Iterator<Map.Entry<String, JsonNode>> fields = profileNode.fields();
+					while(fields.hasNext()) {
+						Map.Entry<String, JsonNode> e = fields.next();
+						update.put("profile." + e.getKey(), Document.parse(e.getValue().toString()));
+					}
 				} else {
 					throw new RuntimeException("Profile must be an object if defined.");
 				}
