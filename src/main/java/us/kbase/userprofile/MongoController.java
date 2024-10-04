@@ -69,7 +69,7 @@ public class MongoController {
 			for (Document document : docs) {
 				Document d = document.get("user", Document.class);
 				// TODO we should check the DB to see if there are any users without usernames, and if not
-				// alter those lines so we assume the username always exists and throws and error otherwise
+				// alter these lines so we assume the username always exists and throws and error otherwise
 				if (!d.containsKey("username")) {
 					continue;
 				}
@@ -95,7 +95,7 @@ public class MongoController {
 		for(Document document : docs) {
 			Document d = document.get("user", Document.class);
 			// TODO we should check the DB to see if there are any users without usernames, and if not
-			// alter those lines so we assume the username always exists and throws and error otherwise
+			// alter these lines so we assume the username always exists and throws and error otherwise
 			if(!d.containsKey("username")) {
 				continue;
 			}
