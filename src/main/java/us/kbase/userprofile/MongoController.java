@@ -17,6 +17,7 @@ import com.mongodb.client.MongoClients;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 import com.mongodb.client.model.IndexOptions;
+import com.sun.tools.javac.comp.Todo;
 import us.kbase.common.service.UObject;
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -68,6 +69,8 @@ public class MongoController {
 			FindIterable<Document> docs = profiles.find(new Document()).projection(new Document("user", 1));
 			for (Document document : docs) {
 				Document d = document.get("user", Document.class);
+				// TODO we should check the DB to see if there are any users without usernames, and if not
+				// alter those lines so we assume the username always exists and throws and error otherwise
 				if (!d.containsKey("username")) {
 					continue;
 				}
@@ -92,6 +95,8 @@ public class MongoController {
 		String [] terms = filter.split("\\s+");
 		for(Document document : docs) {
 			Document d = document.get("user", Document.class);
+			// TODO we should check the DB to see if there are any users without usernames, and if not
+			// alter those lines so we assume the username always exists and throws and error otherwise
 			if(!d.containsKey("username")) {
 				continue;
 			}
