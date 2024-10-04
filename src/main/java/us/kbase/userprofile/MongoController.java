@@ -17,7 +17,6 @@ import com.mongodb.client.MongoClients;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 import com.mongodb.client.model.IndexOptions;
-import com.sun.tools.javac.comp.Todo;
 import us.kbase.common.service.UObject;
 
 import com.fasterxml.jackson.databind.JsonNode;
