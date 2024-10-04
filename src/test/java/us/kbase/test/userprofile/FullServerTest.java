@@ -90,12 +90,13 @@ public class FullServerTest {
 
 		// Test no username
 		UserProfile noUsernameP = new UserProfile().withUser(new User()
+						.withUsername(null)
 						.withRealname("real real name")
 						.withThumbnail("thumb thumb nail"))
 				.withProfile(new UObject(ImmutableMap.of("test", "noUsername")));
 		USR1_CLIENT.setUserProfile(new SetUserProfileParams().withProfile(noUsernameP));
 
-		List<User> emptyUsers = CLIENT.filterUsers( new FilterParams().withFilter(""));
+		List<User> emptyUsers = CLIENT.filterUsers(new FilterParams().withFilter(""));
 		assertTrue(emptyUsers.isEmpty());
 		emptyUsers = CLIENT.filterUsers( new FilterParams().withFilter("filter"));
 		assertTrue(emptyUsers.isEmpty());
