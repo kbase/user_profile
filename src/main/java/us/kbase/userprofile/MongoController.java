@@ -128,7 +128,6 @@ public class MongoController {
 			
 			// only add if it was found
 			if(add) {
-				//System.out.println(u);
 				users.add(u);
 			}
 		}
@@ -169,8 +168,7 @@ public class MongoController {
 		UserProfile up = new UserProfile().withUser(user);
 		Document profile = result.get("profile", Document.class);
 		if(profile != null) {
-			//System.out.println(result.get("profile").toString());
-			//gotta be a better way to do this
+			// gotta be a better way to do this
 			up.setProfile(UObject.fromJsonString(profile.toJson()));
 		}
 		return up;
@@ -199,7 +197,6 @@ public class MongoController {
 				} else {
 					replacement.put("profile", null);
 				}
-				System.out.println(replacement);
 				profiles.updateOne(
 						new Document("user.username", up.getUser().getUsername()),
 						new Document("$set", replacement));
@@ -238,7 +235,6 @@ public class MongoController {
 			Document update = new Document("user", user);
 			if(up.getProfile() != null) {
 				JsonNode profileNode = up.getProfile().asJsonNode();
-				System.out.println(profileNode);
 
 				if(profileNode.isObject()) {
 					Iterator<Map.Entry<String, JsonNode>> fields = profileNode.fields();
@@ -251,7 +247,6 @@ public class MongoController {
 				}
 			}
 
-			System.out.println(update);
 			profiles.updateOne(
 					new Document("user.username", up.getUser().getUsername()),
 					new Document("$set", update));
