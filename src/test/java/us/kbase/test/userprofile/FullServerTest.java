@@ -88,8 +88,19 @@ public class FullServerTest {
 		assertEquals(1, profile.size());
 		assertNull(profile.get(0));
 
+		// Test no username
+		UserProfile noUsernameP = new UserProfile().withUser(new User()
+						.withRealname("real real name")
+						.withThumbnail("thumb thumb nail"))
+				.withProfile(new UObject(ImmutableMap.of("test", "noUsername")));
+		USR1_CLIENT.setUserProfile(new SetUserProfileParams().withProfile(noUsernameP));
+
+		List<User> emptyUsers = CLIENT.filterUsers( new FilterParams().withFilter(""));
+		assertTrue(emptyUsers.isEmpty());
+		emptyUsers = CLIENT.filterUsers( new FilterParams().withFilter("filter"));
+		assertTrue(emptyUsers.isEmpty());
+
 		// Test the updateProfile function on a non-existent user
-		String nonExistProfile = "{\"test\":\"nonsense\"}";
 		UserProfile nonExistP = new UserProfile().withUser(new User()
 						.withUsername("not_exist")
 						.withRealname("real real name")
