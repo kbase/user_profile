@@ -244,7 +244,14 @@ public class MongoController {
 					Iterator<Map.Entry<String, JsonNode>> fields = profileNode.fields();
 					while(fields.hasNext()) {
 						Map.Entry<String, JsonNode> e = fields.next();
-						update.put("profile." + e.getKey(), e.getValue().asText());
+						// Check if the value is an object
+						if (e.getValue().isObject()) {
+							// Convert the object to a Document
+							Document complexDoc = Document.parse(e.getValue().toString());
+							update.put("profile." + e.getKey(), complexDoc);
+						} else {
+							update.put("profile." + e.getKey(), e.getValue().asText());
+						}
 					}
 				} else {
 					throw new RuntimeException("Profile must be an object if defined.");

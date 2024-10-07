@@ -139,8 +139,8 @@ public class FullServerTest {
 		assertEquals("yeah2", ret2.getProfile().asMap().get("stuff").asScalar());
 
 
-		// User1 adds a field to the profile
-		String jsonProfileUpdate = "{\"new_stuff\":\"yeah\"}";
+		// User1 adds fields to the profile
+		String jsonProfileUpdate = "{\"new_stuff\":\"yeah\", \"complex_stuff\":{\"yee\": \"haw\"}}";
 		UserProfile p3 = new UserProfile().withUser(new User()
 						.withUsername(USER1_NAME)
 						.withRealname("User One")
@@ -157,6 +157,7 @@ public class FullServerTest {
 		assertEquals("User One Thumbnail updated", ret3.getUser().getThumbnail());
 		assertEquals("yeah2", ret3.getProfile().asMap().get("stuff").asScalar());
 		assertEquals("yeah", ret3.getProfile().asMap().get("new_stuff").asScalar());
+		assertEquals("haw", ret3.getProfile().asMap().get("complex_stuff").asMap().get("yee").asScalar());
 
 
 		// Make sure that when we filter users, we get at least this one hit.
