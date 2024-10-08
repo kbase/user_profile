@@ -11,7 +11,6 @@ import java.util.Map;
 /*
 import org.apache.commons.lang3.StringUtils;*/
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoClients;
@@ -21,7 +20,6 @@ import com.mongodb.client.model.IndexOptions;
 import us.kbase.common.service.UObject;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mongodb.MongoClientSettings;
 import com.mongodb.MongoCredential;
 import com.mongodb.ServerAddress;
@@ -243,16 +241,11 @@ public class MongoController {
 				JsonNode profileNode = up.getProfile().asJsonNode();
 
 				if(profileNode.isObject()) {
-					ObjectMapper objectMapper = new ObjectMapper();
 					Iterator<Map.Entry<String, JsonNode>> fields = profileNode.fields();
 					while(fields.hasNext()) {
 						Map.Entry<String, JsonNode> e = fields.next();
-						try {
-							Object val = objectMapper.treeToValue(e.getValue(), Object.class);
-							update.put("profile." + e.getKey(), val);
-						} catch (JsonProcessingException ex) {
-							throw new RuntimeException(ex);
-						}
+						Object val = UObject.transformJacksonToObject(e.getValue(), Object.class);
+						update.put("profile." + e.getKey(), val);
 					}
 				} else {
 					throw new RuntimeException("Profile must be an object if defined.");
