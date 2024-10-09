@@ -232,6 +232,7 @@ public class FullServerTest {
 		ws.add(UserProfileServer.CFG_MONGO_HOST, "localhost:" + MONGO.getServerPort());
 		ws.add(UserProfileServer.CFG_MONGO_DB , "user_profile_test");
 		ws.add(UserProfileServer.CFG_ADMIN, adminAuthToken.getUserName());
+		ws.add(UserProfileServer.CFG_MONGO_RETRY_WRITES, "false");
 		ws.add("auth-service-url", authServiceUrl);
 		ws.add("auth-service-url-allow-insecure", authAllowInsecureString);
 		
