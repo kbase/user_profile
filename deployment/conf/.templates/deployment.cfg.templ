@@ -21,6 +21,9 @@ mongodb-user = {{ default .Env.mongodb_user "" }}
 # password for the account
 mongodb-pwd = {{ default .Env.mongodb_pwd "" }}
 
+# whether to enable the MongoDB retryWrites parameter or not
+mongodb-retrywrites={{ default .Env.mongodb_retrywrites "false" }}
+
 # the user name for an administrator
 admin = {{ default .Env.admin "kbuserprofileadmin" }}
 

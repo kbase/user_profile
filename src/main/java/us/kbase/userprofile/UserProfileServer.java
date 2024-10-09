@@ -37,8 +37,10 @@ public class UserProfileServer extends JsonServerServlet {
     public static final String              CFG_MONGO_DB = "mongodb-database";
     public static final String            CFG_MONGO_USER = "mongodb-user";
     public static final String            CFG_MONGO_PSWD = "mongodb-pwd";
+    public static final String    CFG_MONGO_RETRY_WRITES = "mongodb-retrywrites";
     public static final String                 CFG_ADMIN = "admin";
 
+    public static final String TRUE = "true";
     private static Throwable configError = null;
     private static Map<String, String> config = null;
 
@@ -90,18 +92,14 @@ public class UserProfileServer extends JsonServerServlet {
         } catch (Exception e) {
         	useMongoAuth = false;
         }
-        
+
+        final boolean mongoRetryWrites = TRUE.equals(getConfig(CFG_MONGO_RETRY_WRITES));
+
         if(useMongoAuth) {
-        	db = new MongoController(
-            		getConfig(CFG_MONGO_HOST),
-            		getConfig(CFG_MONGO_DB),
-            		mongoUser,
-            		getConfig(CFG_MONGO_PSWD)
-            		);
+            db = new MongoController(getConfig(CFG_MONGO_HOST), getConfig(CFG_MONGO_DB),
+                    mongoUser, getConfig(CFG_MONGO_PSWD), mongoRetryWrites);
         } else {
-        	db = new MongoController(
-        		getConfig(CFG_MONGO_HOST),
-        		getConfig(CFG_MONGO_DB));
+            db = new MongoController(getConfig(CFG_MONGO_HOST), getConfig(CFG_MONGO_DB), mongoRetryWrites);
         }
         //END_CONSTRUCTOR
     }

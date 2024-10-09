@@ -2,11 +2,10 @@
 
 A lightweight service to store public KBase user profiles and related basic information.
 
-## VERSION: 0.3.0 (Released 10/3/24)
+## VERSION: 0.3.0 (Released 10/9/24)
 
 * The MongoDB clients have been updated to the most recent version.
-* Added the ``mongo-retrywrites`` configuration setting in ``deploy.cfg``, defaulting to
-  ``false``.
+* Added the ``mongo-retrywrites`` configuration setting in ``deploy.cfg``, defaulting to ``false``.
 * Switched the build system from Make / Ant to Gradle.
 * The `lookup_globus_user` method was removed.
 * The `globus-url` configuration parameter was removed.
