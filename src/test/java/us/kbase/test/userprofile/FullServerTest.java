@@ -1,6 +1,8 @@
 package us.kbase.test.userprofile;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 import java.io.File;
 import java.lang.reflect.Field;
@@ -10,6 +12,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
+import com.google.common.collect.ImmutableMap;
 import org.apache.commons.io.FileUtils;
 import org.ini4j.Ini;
 import org.ini4j.Profile.Section;
@@ -81,13 +84,33 @@ public class FullServerTest {
 	@Test
 	public void testBasicPath() throws Exception {
 
+		List<UserProfile> profile = CLIENT.getUserProfile(Arrays.asList(USER1_NAME));
+		assertEquals(1, profile.size());
+		assertNull(profile.get(0));
+
+		// Test the updateProfile function on a non-existent user
+		UserProfile nonExistP = new UserProfile().withUser(new User()
+						.withUsername("not_exist")
+						.withRealname("real real name")
+						.withThumbnail("thumb thumb nail"))
+				.withProfile(new UObject(ImmutableMap.of("test", "nonsense")));
+		ADMIN_CLIENT.updateUserProfile(new SetUserProfileParams().withProfile(nonExistP));
+
+		List<UserProfile> profiles0 = CLIENT.getUserProfile(Arrays.asList("not_exist"));
+		assertEquals(1, profiles0.size());
+		UserProfile ret0 = profiles0.get(0);
+		assertEquals("not_exist", ret0.getUser().getUsername());
+		assertEquals("real real name", ret0.getUser().getRealname());
+		assertEquals("thumb thumb nail", ret0.getUser().getThumbnail());
+		assertEquals("nonsense", ret0.getProfile().asMap().get("test").asScalar());
+
 		// User1 creates a profile
 		String jsonProfile1 = "{\"stuff\":\"yeah\"}";
-		UserProfile p = new UserProfile()
-								.withUser(new User()
-											.withUsername(USER1_NAME)
-											.withRealname("User One"))
-								.withProfile(UObject.fromJsonString(jsonProfile1));
+		UserProfile p = new UserProfile().withUser(new User()
+						.withUsername(USER1_NAME)
+						.withRealname("User One")
+						.withThumbnail("User One Thumbnail"))
+				.withProfile(UObject.fromJsonString(jsonProfile1));
 		USR1_CLIENT.setUserProfile(new SetUserProfileParams().withProfile(p));
 
 		// Profile is visible to an anonymous user
@@ -95,6 +118,8 @@ public class FullServerTest {
 		assertEquals(1, profiles.size());
 		UserProfile ret = profiles.get(0);
 		assertEquals(USER1_NAME, ret.getUser().getUsername());
+		assertEquals("User One", ret.getUser().getRealname());
+		assertEquals("User One Thumbnail", ret.getUser().getThumbnail());
 		assertEquals("yeah", ret.getProfile().asMap().get("stuff").asScalar());
 
 		// Admin updates profile
@@ -114,12 +139,13 @@ public class FullServerTest {
 		assertEquals("yeah2", ret2.getProfile().asMap().get("stuff").asScalar());
 
 
-		// User1 adds a field to the profile
-		String jsonProfileUpdate = "{\"new_stuff\":\"yeah\"}";
-		UserProfile p3 = new UserProfile()
-								.withUser(new User()
-											.withUsername(USER1_NAME))
-								.withProfile(UObject.fromJsonString(jsonProfileUpdate));
+		// User1 adds fields to the profile
+		String jsonProfileUpdate = "{\"new_stuff\":\"yeah\", \"complex_stuff\":{\"yee\": \"haw\"}}";
+		UserProfile p3 = new UserProfile().withUser(new User()
+						.withUsername(USER1_NAME)
+						.withRealname("User One")
+						.withThumbnail("User One Thumbnail updated"))
+				.withProfile(UObject.fromJsonString(jsonProfileUpdate));
 		USR1_CLIENT.updateUserProfile(new SetUserProfileParams().withProfile(p3));
 
 		// Profile is updated as expected
@@ -127,8 +153,11 @@ public class FullServerTest {
 		assertEquals(1, profiles3.size());
 		UserProfile ret3 = profiles3.get(0);
 		assertEquals(USER1_NAME, ret3.getUser().getUsername());
+		assertEquals("User One", ret3.getUser().getRealname());
+		assertEquals("User One Thumbnail updated", ret3.getUser().getThumbnail());
 		assertEquals("yeah2", ret3.getProfile().asMap().get("stuff").asScalar());
 		assertEquals("yeah", ret3.getProfile().asMap().get("new_stuff").asScalar());
+		assertEquals("haw", ret3.getProfile().asMap().get("complex_stuff").asMap().get("yee").asScalar());
 
 
 		// Make sure that when we filter users, we get at least this one hit.
