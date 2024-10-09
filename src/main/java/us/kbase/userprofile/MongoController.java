@@ -69,7 +69,7 @@ public class MongoController {
 			for (Document document : docs) {
 				Document d = document.get("user", Document.class);
 				// TODO we should check the DB to see if there are any users without usernames, and if not
-				// alter these lines so we assume the username always exists and throws and error otherwise
+				// alter these lines so we assume the username always exists and throws an error otherwise
 				if (!d.containsKey("username")) {
 					continue;
 				}
@@ -95,7 +95,7 @@ public class MongoController {
 		for(Document document : docs) {
 			Document d = document.get("user", Document.class);
 			// TODO we should check the DB to see if there are any users without usernames, and if not
-			// alter these lines so we assume the username always exists and throws and error otherwise
+			// alter these lines so we assume the username always exists and throws an error otherwise
 			if(!d.containsKey("username")) {
 				continue;
 			}
@@ -145,14 +145,9 @@ public class MongoController {
 	}
 
 	public boolean exists(String username) {
-		return findProfileByUsername(username) != null;
-    }
-
-	private Document findProfileByUsername(String username) {
 		Document query = new Document("user.username", username);
-		return profiles.find(query).first();
+		return profiles.find(query).first() != null;
 	}
-
 
 	public UserProfile getProfile(String username) {
 		Document query = new Document("user.username", username);
@@ -243,8 +238,8 @@ public class MongoController {
 				if(profileNode.isObject()) {
 					Iterator<Map.Entry<String, JsonNode>> fields = profileNode.fields();
 					while(fields.hasNext()) {
-						Map.Entry<String, JsonNode> e = fields.next();
-						Object val = UObject.transformJacksonToObject(e.getValue(), Object.class);
+						final Map.Entry<String, JsonNode> e = fields.next();
+						final Object val = UObject.transformJacksonToObject(e.getValue(), Object.class);
 						update.put("profile." + e.getKey(), val);
 					}
 				} else {
