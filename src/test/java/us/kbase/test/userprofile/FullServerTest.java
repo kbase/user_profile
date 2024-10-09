@@ -12,6 +12,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
+import com.google.common.collect.ImmutableMap;
 import org.apache.commons.io.FileUtils;
 import org.ini4j.Ini;
 import org.ini4j.Profile.Section;
@@ -88,12 +89,11 @@ public class FullServerTest {
 		assertNull(profile.get(0));
 
 		// Test the updateProfile function on a non-existent user
-		String nonExistProfile = "{\"test\":\"nonsense\"}";
 		UserProfile nonExistP = new UserProfile().withUser(new User()
 						.withUsername("not_exist")
 						.withRealname("real real name")
 						.withThumbnail("thumb thumb nail"))
-				.withProfile(UObject.fromJsonString(nonExistProfile));
+				.withProfile(new UObject(ImmutableMap.of("test", "nonsense")));
 		ADMIN_CLIENT.updateUserProfile(new SetUserProfileParams().withProfile(nonExistP));
 
 		List<UserProfile> profiles0 = CLIENT.getUserProfile(Arrays.asList("not_exist"));
@@ -139,8 +139,8 @@ public class FullServerTest {
 		assertEquals("yeah2", ret2.getProfile().asMap().get("stuff").asScalar());
 
 
-		// User1 adds a field to the profile
-		String jsonProfileUpdate = "{\"new_stuff\":\"yeah\"}";
+		// User1 adds fields to the profile
+		String jsonProfileUpdate = "{\"new_stuff\":\"yeah\", \"complex_stuff\":{\"yee\": \"haw\"}}";
 		UserProfile p3 = new UserProfile().withUser(new User()
 						.withUsername(USER1_NAME)
 						.withRealname("User One")
@@ -157,6 +157,7 @@ public class FullServerTest {
 		assertEquals("User One Thumbnail updated", ret3.getUser().getThumbnail());
 		assertEquals("yeah2", ret3.getProfile().asMap().get("stuff").asScalar());
 		assertEquals("yeah", ret3.getProfile().asMap().get("new_stuff").asScalar());
+		assertEquals("haw", ret3.getProfile().asMap().get("complex_stuff").asMap().get("yee").asScalar());
 
 
 		// Make sure that when we filter users, we get at least this one hit.
