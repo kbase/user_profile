@@ -31,22 +31,26 @@ public class MongoController {
 
 	private final MongoCollection<Document> profiles;
 	
-	public MongoController(final String host, final String database) {
-		final MongoDatabase db = getDB(host, database, null, null);
+	public MongoController(final String host, final String database, final boolean mongoRetryWrites) {
+		final MongoDatabase db = getDB(host, database, null, null, mongoRetryWrites);
 		profiles = db.getCollection(COL_PROFILES);
 		ensureIndex();
 	}
 	
 	public MongoController(final String host, final String database,
-						   final String mongoUser, final String mongoPswd) {
-		final MongoDatabase db = getDB(host, database, mongoUser, mongoPswd);
+						   final String mongoUser, final String mongoPswd,
+						   final boolean mongoRetryWrites) {
+		final MongoDatabase db = getDB(host, database, mongoUser, mongoPswd, mongoRetryWrites);
 		profiles = db.getCollection(COL_PROFILES);
 		ensureIndex();
 	}
 	
-	private MongoDatabase getDB(final String host, final String db, final String user, final String pwd) {
-		final MongoClientSettings.Builder mongoBuilder = MongoClientSettings.builder().applyToClusterSettings(
-				builder -> builder.hosts(Arrays.asList(new ServerAddress(host))));
+	private MongoDatabase getDB(final String host, final String db, final String user,
+								final String pwd, final boolean retryWrites) {
+		final MongoClientSettings.Builder mongoBuilder = MongoClientSettings.builder()
+				.retryWrites(retryWrites)
+				.applyToClusterSettings(
+						builder -> builder.hosts(Arrays.asList(new ServerAddress(host))));
 		final MongoClient cli;
 		if (user != null) {
 			final MongoCredential creds = MongoCredential.createCredential(
