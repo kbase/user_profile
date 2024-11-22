@@ -67,14 +67,5 @@ module UserProfile {
         todo: add some way to remove fields.  Fields in profile can only be modified or added.
     */
     funcdef update_user_profile(SetUserProfileParams p) returns () authentication required;
-
-
-	typedef structure {
-		string email;
-		string fullName;
-		string userName;
-	} GlobusUser;
-
-	funcdef lookup_globus_user(list <username> usernames) returns (mapping <username,GlobusUser> users) authentication required;
 };
 

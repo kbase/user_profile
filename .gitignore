@@ -4,3 +4,13 @@ classes
 dist
 /build/
 /bin/
+/.settings/
+/test.cfg
+/.pydevproject
+
+# Ignore Gradle project-specific cache directory
+.gradle
+
+# Ignore Gradle build output directory
+build
+/.classpath

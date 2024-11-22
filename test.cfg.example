@@ -1,0 +1,18 @@
+# DO NOT CHECK CHANGES TO THIS FILE INTO GIT!
+
+[UserProfile]
+
+test.mongo-exe-path=/path/to/mongod
+
+test.temp-dir = user_profile_test_temp
+test.remove-temp-dir = true
+
+# admin token is required
+test.admin-token = xxx
+
+# token is required
+test.usr1-token = xxx
+
+test.auth-service-url = https://ci.kbase.us/services/auth/api/legacy/KBase
+
+#test.auth-service-url-allow-insecure = false

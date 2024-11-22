@@ -1,0 +1,40 @@
+version: '3.4'
+
+services:
+  user_profile:
+    # build the nms docker image locally
+    build: .
+    # to use the latest docker image from ghcr.io
+    # uncomment the next line and comment out the build line
+    # image: ghcr.io/kbase/user_profile:latest
+    ports:
+      - "8080:8080"
+    depends_on: ["mongo"]
+    environment:
+      # see deployment/conf/.templates for more environment variables
+      - mongodb_host=mongo:27017
+      - mongodb_database=user_profile
+      - auth_service_url=https://ci.kbase.us/services/auth/api/legacy/KBase/Sessions/Login
+      - auth_service_url_allow_insecure=false
+      - port=8080
+    command:
+      - "-wait"
+      - "tcp://mongo:27017"
+      - "-timeout"
+      - "120s"
+      - "-template"
+      - "/kb/deployment/conf/.templates/deployment.cfg.templ:/kb/deployment/conf/deployment.cfg"
+      - "-template"
+      - "/kb/deployment/conf/.templates/http.ini.templ:/kb/deployment/jettybase/start.d/http.ini"
+      - "-template"
+      - "/kb/deployment/conf/.templates/server.ini.templ:/kb/deployment/jettybase/start.d/server.ini"
+      - "-template"
+      - "/kb/deployment/conf/.templates/start-server.sh.templ:/kb/deployment/bin/start-server.sh"
+      - "-stdout"
+      - "/kb/deployment/jettybase/logs/request.log"
+      - "/kb/deployment/bin/start-server.sh"
+
+  mongo:
+    image: "mongo:3.6.23"
+    ports:
+      - "27017:27017"
