@@ -156,7 +156,7 @@ configurations {
 
 dependencies {
 
-	implementation 'org.ini4j:ini4j:0.5.2'
+	implementation 'org.ini4j:ini4j:0.5.4'
 	implementation 'com.fasterxml.jackson.core:jackson-annotations:2.2.3'
 	implementation 'com.fasterxml.jackson.core:jackson-databind:2.2.3'
 	implementation "com.github.kbase:java_common:$VER_JAVA_COMMON"
