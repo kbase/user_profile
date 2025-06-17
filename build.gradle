@@ -170,7 +170,7 @@ dependencies {
 	implementation 'com.google.guava:guava:31.1-jre'
 
 	testImplementation 'junit:junit:4.9'
-	testImplementation 'commons-io:commons-io:2.4'
+	testImplementation 'commons-io:commons-io:2.19.0'
 	testImplementation('com.github.kbase:java_test_utilities:0.1.0') {
 		exclude group: 'com.fasterxml.jackson.core'  // upgrading breaks stuff
 	}
