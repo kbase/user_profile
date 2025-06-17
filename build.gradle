@@ -169,7 +169,7 @@ dependencies {
 	implementation 'org.mongodb:bson:4.11.1'
 	implementation 'com.google.guava:guava:31.1-jre'
 
-	testImplementation 'junit:junit:4.9'
+	testImplementation 'junit:junit:4.13.2'
 	testImplementation 'commons-io:commons-io:2.4'
 	testImplementation('com.github.kbase:java_test_utilities:0.1.0') {
 		exclude group: 'com.fasterxml.jackson.core'  // upgrading breaks stuff
