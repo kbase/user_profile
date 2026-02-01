@@ -157,8 +157,8 @@ configurations {
 dependencies {
 
 	implementation 'org.ini4j:ini4j:0.5.2'
-	implementation 'com.fasterxml.jackson.core:jackson-annotations:2.2.3'
-	implementation 'com.fasterxml.jackson.core:jackson-databind:2.2.3'
+	implementation 'com.fasterxml.jackson.core:jackson-annotations:2.21'
+	implementation 'com.fasterxml.jackson.core:jackson-databind:2.21'
 	implementation "com.github.kbase:java_common:$VER_JAVA_COMMON"
 	implementation "com.github.kbase:auth2_client_java:$VER_AUTH2_CLIENT"
 	implementation 'javax.annotation:javax.annotation-api:1.2'
